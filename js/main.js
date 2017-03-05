@@ -1160,7 +1160,16 @@ fg.Game =
             }
         }
     }
-
+fg.Font = {
+    fontImagePath: 'resources/font.png',
+    init: function () {
+        if (this.fontImage) {
+            var bg = new Image();
+            bg.src = 'resources/bg.png';
+            this.bgImage = bg;
+        }
+    }
+}
 fg.UI = {
     closeAll: false,
     init: function () {
