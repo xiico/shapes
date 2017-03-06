@@ -933,7 +933,7 @@ fg.Game =
                     entity.update(true);
                     entity.draw(true);
                 }
-                this.mainFont.draw('2560080', 120, 390);
+                this.mainFont.draw('Points: 20000!', 0, 390);
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
@@ -1194,7 +1194,7 @@ fg.Font = function (path) {
             this._getCharCodes(text);
             for (var i = 0; i < this.charCodes.length; i++) {
                 var code = this.charCodes[i];
-                fg.Render.draw(this.bgImage, code * this.fontWidth, 0, this.fontWidth, this.fontHeight, x + (i * this.fontWidth), y);
+                fg.Render.draw(this.bgImage, code * this.fontWidth, 0, this.fontWidth, this.fontHeight, x + (i * (this.fontWidth)), y);
             }
         }
     }).init();
