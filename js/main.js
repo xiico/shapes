@@ -1162,6 +1162,8 @@ fg.Game =
     }
 fg.Font = {
     fontImagePath: 'resources/font.png',
+    fontHeight:40,
+    fontWidth:20,
     init: function () {
         if (this.fontImage) {
             var bg = new Image();
