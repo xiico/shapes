@@ -814,7 +814,9 @@ fg.Game =
         },
         screenShot: undefined,
         loadedSaveStations: [],
+        mainFont: null,
         start: function () {
+            this.mainFont = fg.Font('resources/font_small.png');
             fg.System.init();
             fg.UI.init();
             //fg.Camera.follow(fg.Game.actors[0]);
@@ -931,6 +933,7 @@ fg.Game =
                     entity.update(true);
                     entity.draw(true);
                 }
+                this.mainFont.draw('2560080', 120, 390);
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
@@ -1160,17 +1163,41 @@ fg.Game =
             }
         }
     }
-fg.Font = {
-    fontImagePath: 'resources/font.png',
-    fontHeight:40,
-    fontWidth:20,
-    init: function () {
-        if (this.fontImage) {
-            var bg = new Image();
-            bg.src = 'resources/bg.png';
-            this.bgImage = bg;
+fg.Font = function (path) {
+    return Object.create({
+        fontImagePath: path,
+        fontHeight: 40,
+        fontWidth: 20,
+        startChar: 32,
+        charCodes: [],
+        init: function () {
+            var fntImage = new Image();
+            var fnt = this;
+            fntImage.src = this.fontImagePath;
+            this.bgImage = fntImage;
+            fntImage.onload = function (e) {
+                //draw background image
+                //ctx.drawImage(gem, 0, 0);
+                var i = e;
+                fnt.fontWidth = e.target.width / 95;
+                fnt.fontHeight = e.target.height;
+            };
+            return this;
+        },
+        _getCharCodes: function(text){
+            this.charCodes = [];
+            for (var i = 0, char; char = text[i]; i++) {
+                this.charCodes.push(char.charCodeAt(0) - this.startChar);
+            }
+        },
+        draw: function (text, x, y) {
+            this._getCharCodes(text);
+            for (var i = 0; i < this.charCodes.length; i++) {
+                var code = this.charCodes[i];
+                fg.Render.draw(this.bgImage, code * this.fontWidth, 0, this.fontWidth, this.fontHeight, x + (i * this.fontWidth), y);
+            }
         }
-    }
+    }).init();
 }
 fg.UI = {
     closeAll: false,
