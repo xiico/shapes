@@ -442,11 +442,13 @@ fg.protoEntity = {
             fg.Render.draw(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
         }
         if (fg.Game.showIds) {
-            fg.System.context.font = "7px Arial";
-            fg.System.context.fillStyle = "white";
-            fg.System.context.fillText(this.movingSpeed, this.x - fg.Game.screenOffsetX + 24, this.y + 24 - fg.Game.screenOffsetY);
-            fg.System.context.fillText(this.id.split('-')[0], this.x - fg.Game.screenOffsetX + 24, this.y + 31 - fg.Game.screenOffsetY);
-            fg.System.context.fillText(this.id.split('-')[1], this.x - fg.Game.screenOffsetX + 24, this.y + 38 - fg.Game.screenOffsetY);
+            // fg.System.context.font = "7px Arial";
+            // fg.System.context.fillStyle = "white";
+            // fg.System.context.fillText(this.movingSpeed, this.x - fg.Game.screenOffsetX + 24, this.y + 24 - fg.Game.screenOffsetY);
+            // fg.System.context.fillText(this.id.split('-')[0], this.x - fg.Game.screenOffsetX + 24, this.y + 31 - fg.Game.screenOffsetY);
+            // fg.System.context.fillText(this.id.split('-')[1], this.x - fg.Game.screenOffsetX + 24, this.y + 38 - fg.Game.screenOffsetY);
+            fg.Game.mainFontSmall.draw(this.id.split('-')[0], this.x - fg.Game.screenOffsetX + 12, this.y + 6 - fg.Game.screenOffsetY);
+            fg.Game.mainFontSmall.draw(this.id.split('-')[1], this.x - fg.Game.screenOffsetX + 12, this.y + 14 - fg.Game.screenOffsetY);
         }
     },
     drawTile: function (c, ctx) {
@@ -788,7 +790,7 @@ fg.Game =
     {
         levels: [],
         currentLevel: null,
-        showIds: false,
+        showIds: true,
         screenOffsetX: 0,//5818
         screenOffsetY: 0,//818,5200,72
         increaseX: 0,//0.06666=1
