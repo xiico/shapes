@@ -791,7 +791,7 @@ fg.Game =
     {
         levels: [],
         currentLevel: null,
-        showIds: true,
+        showIds: false,
         screenOffsetX: 0,//5818
         screenOffsetY: 0,//818,5200,72
         increaseX: 0,//0.06666=1
@@ -938,7 +938,7 @@ fg.Game =
                     entity.update(true);
                     entity.draw(true);
                 }
-                this.mainFontSmall.draw('Elle descend en se tenant aux racines.', 0, 390);
+                this.mainFontSmall.draw('this.actors[index]; index++)', 0, 390);
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
