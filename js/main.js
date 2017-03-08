@@ -255,7 +255,7 @@ fg.protoLevel = {
         if(init) this.loadLevelCompleted()
     },
     getRandomEntity: function () {
-        var color = Math.round(Math.random() * 6);
+        var color = Math.round(Math.random() * 7);
         switch (color) {
             case 0:
                 return TYPE.GREENGEM;//4
@@ -271,6 +271,8 @@ fg.protoLevel = {
                 return TYPE.WHITEGEM;//13
             case 6:
                 return TYPE.ORANGEGEM;//5
+            case 7:
+                return TYPE.CYANGEM;//5
         }
     },
     getEntitySettings: function (type, id) {
@@ -471,6 +473,7 @@ fg.Entity = function (id, type, x, y, cx, cy, index) {
         case TYPE.BLUEGEM:
         case TYPE.WHITEGEM:
         case TYPE.ORANGEGEM:
+        case TYPE.CYANGEM:
             return fg.Gem(id, type, x, y, cx, cy, index);
         default:
             return Object.create(fg.protoEntity).init(id, type, x, y, cx, cy, index);
@@ -529,7 +532,9 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
                     case TYPE.WHITEGEM:
                         return "white";
                     case TYPE.ORANGEGEM:
-                        return "orange";
+                        return "orange";                        
+                    case TYPE.CYANGEM:
+                        return "cyan";
                     default:
                         return "black";
                 }
@@ -1695,4 +1700,5 @@ var TYPE = {
     BLUEGEM: "B",
     WHITEGEM: "W",
     ORANGEGEM: "O",
+    CYANGEM: "C"
 }
