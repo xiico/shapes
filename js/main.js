@@ -938,7 +938,7 @@ fg.Game =
                     entity.update(true);
                     entity.draw(true);
                 }
-                this.mainFontSmall.draw('this.actors[index]; index++)', 0, 390);
+                this.mainFontSmall.draw("pagy faq!@#&*('<>?/|\\0123456789)", 0, 390);
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
