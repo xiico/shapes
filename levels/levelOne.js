@@ -1,12 +1,12 @@
 var levelOne = {tiles:
-"MMMMMMMM\n"+
-"MMMMMMMM\n"+
-"MMMMMMMM\n"+
-"MMMMMMMM\n"+
-"M  MMMMM\n"+
-"MMMMMMMM\n"+
-"MMMMMMMM\n"+
-"MMMMMMMM",
+"       M\n"+
+"   M   M\n"+
+"  MMM  M\n"+
+" MM MM  \n"+
+"  MMM   \n"+
+"   M  MM\n"+
+"      M \n"+
+"        ",
     movingPlatforms: [{ id: "3-51", features: { moving: true }, settings: { movingOnX: true } }],
     levelSwiches: [//{ id: "8-54", features: { moveTarget: true }, settings: { targetId: "6-58", defaulTimer: 120, direction: "U" } },
                    { id: "8-55", features: { moveTarget: true }, settings: { targetId: "6-58", timed: true, defaulTimer: 120, direction: "D" } },

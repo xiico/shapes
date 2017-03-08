@@ -218,9 +218,11 @@ fg.protoLevel = {
     height: 0,
     width: 0,
     purgeLevel: false,
-    randomEntities: false,
+    randomEntities: true,
     bgImagePath: "resources/bg.png",
     bgImage: null,
+    rowsCount: 0,
+    colsCount: 0,
     loadSettings: function () {
         if (window[this.name].levelSwiches)
             this.levelSwiches = window[this.name].levelSwiches;
@@ -233,13 +235,15 @@ fg.protoLevel = {
     },
     createEntities: function (init) {
         var rows = window[this.name].tiles.split('\n');
+        this.rowsCount = rows.length;
+        this.colsCount = rows[0].length;
         for (var i = 0, row; row = rows[i]; i++) {
             if (!this.entities[i]) this.entities[i] = [];
             for (var k = 0, col; col = row[k]; k++) {
                 if (this.randomEntities || !col.match(/[ #\d]/g)) {
                     var cx = 0, cy = 0, idx = 0;
                     if (this.randomEntities || ((!row[k + 1] || !row[k + 1].match(/[\d]/g)) && (!rows[i + 1] || !rows[i + 1][k].match(/[\d]/g)))) {
-                        this.addEntity(row, !this.randomEntities ? col : this.getRandomEntity(), i, k, cx, cy, idx);
+                        this.addEntity(row, !this.randomEntities || (this.randomEntities && !col.match(/[ #\d]/g)) ? col : this.getRandomEntity(), i, k, cx, cy, idx);
                     }
                     else {
                         if ((row[k + 1] && !!row[k + 1].match(/[\d]/g)) && (!rows[i + 1] || !rows[i + 1][k].match(/[\d]/g))) //multiply rows                            
@@ -494,6 +498,7 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
             cacheWidth: fg.System.defaultSide,
             cacheHeight: fg.System.defaultSide,
             moveTo: [],
+            isGem: true,
             drawTile: function (c, ctx) {
                 //Loading of the home test image
                 var gem = new Image();
@@ -986,7 +991,7 @@ fg.Game =
         touchEnd: function(touches){            
             var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
             var col = Math.floor((touches[0].pageX+fg.Game.screenOffsetY)/fg.System.defaultSide);
-            if(row < 0 || col < 0 || row >= fg.Game.currentLevel.entities.length 
+            if(row < 0 || col < 0 || row >= fg.Game.currentLevel.entities.length || !this.selectedGem || !this.selectedGem.isGem
             || col >= fg.Game.currentLevel.entities[0].length || (this.selectedGem.getRow() == row && this.selectedGem.getCol() == col)) return;
             if(row != this.selectedGem.getRow() && col != this.selectedGem.getCol()){
                 var diffRow = Math.abs(row - this.selectedGem.getRow());
@@ -1003,7 +1008,8 @@ fg.Game =
             } else {
                 col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
             }
-            var entity = fg.Game.currentLevel.entities[row][col];            
+            var entity = fg.Game.currentLevel.entities[row][col];    
+            if(!entity || !entity.isGem) return; 
             // entity.selected = !entity.selected;
             this.selectedGem.moveTo.push(row); 
             this.selectedGem.moveTo.push(col);
@@ -1023,9 +1029,9 @@ fg.Game =
             var mainColumn = Math.round(startX / fg.System.defaultSide);
             var mainRow = Math.round(startY / fg.System.defaultSide);
             var startRowIndex = mainRow - depthY < 0 ? 0 : mainRow - depthY;
-            var endRowIndex = mainRow + depthY > fg.Game.currentLevel.entities.length ? fg.Game.currentLevel.entities.length : mainRow + depthY;
+            var endRowIndex = mainRow + depthY > fg.Game.currentLevel.rowsCount ? fg.Game.currentLevel.rowsCount : mainRow + depthY;
             var startColIndex = mainColumn - depthX < 0 ? 0 : mainColumn - depthX;
-            var endColIndex = mainColumn + depthX > fg.Game.currentLevel.entities[0].length ? fg.Game.currentLevel.entities[0].length : mainColumn + depthX;
+            var endColIndex = mainColumn + depthX > fg.Game.currentLevel.colsCount ? fg.Game.currentLevel.colsCount : mainColumn + depthX;
 
             for (var i = startRowIndex; i < endRowIndex; i++) {
                 for (var k = startColIndex, obj; k < endColIndex; k++) {
