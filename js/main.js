@@ -218,7 +218,7 @@ fg.protoLevel = {
     height: 0,
     width: 0,
     purgeLevel: false,
-    randomEntities: true,
+    randomEntities: false,
     bgImagePath: "resources/bg.png",
     bgImage: null,
     loadSettings: function () {
@@ -475,6 +475,8 @@ fg.Entity = function (id, type, x, y, cx, cy, index) {
         case TYPE.ORANGEGEM:
         case TYPE.CYANGEM:
             return fg.Gem(id, type, x, y, cx, cy, index);
+        case TYPE.MARIO:
+            return fg.Mario(id, type, x, y, cx, cy, index);
         default:
             return Object.create(fg.protoEntity).init(id, type, x, y, cx, cy, index);
     }
@@ -594,35 +596,45 @@ fg.Mario = function (id, type, x, y, cx, cy, index) {
             cacheX: 0,//Math.round(Math.random() * 4) * fg.System.defaultSide,//cacheX: fg.System.defaultSide * 0,
             edges: undefined,
             tileSet: "",
-            cachePosition: [{ x: 12, y: 0 }, { x: 12, y: 12 }, { x: 0, y: 12 }, { x: 0, y: 0 }],
+            procedural: false,
+            imagePath:'resources/mario_tiles_46.png',
+            cachePosition: [{ x: (fg.System.defaultSide / 2), y: 0 }, { x: (fg.System.defaultSide / 2), y: (fg.System.defaultSide / 2) }, { x: 0, y: (fg.System.defaultSide / 2) }, { x: 0, y: 0 }],
             drawTile: function (c, ctx) {
                 c.width = this.width * (5 + Object.keys(fg.Render.marioCache).length);
                 c.height = this.height;
-                var colorA = "rgb(201,152,86)";
-                ctx.fillStyle = colorA;
-                ctx.fillRect(0, 0, 72, 24);
-                ctx.fillRect(79, 7, 10, 10);
-                ctx.fillRect(96, 0, 24, 24);
-                //draw speckles
-                this.speckles(ctx);
-                //draw sides tiles
-                this.sides(ctx);
-                //draw inner corners
-                this.innerCorners(ctx);
-                //draw outer corners
-                this.outerCorners(ctx);
-                //mirror sides
-                ctx.save();
-                ctx.translate(c.width - (fg.System.defaultSide * ((5 + Object.keys(fg.Render.marioCache).length) - 6)), 0);
-                ctx.scale(-1, 1);
-                this.sides(ctx);
-                ctx.restore();
-
-                for (var i = 0, key; key = Object.keys(fg.Render.marioCache)[i]; i++) {
-                    //ctx.drawImage(this.renderSubTile(c, key), fg.Render.marioCache[key], 0);
-                    this.renderSubTile(ctx, key);
+                if (this.procedural) {
+                    var colorA = "rgb(201,152,86)";
+                    ctx.fillStyle = colorA;
+                    ctx.fillRect(0, 0, 72, 24);
+                    ctx.fillRect(79, 7, 10, 10);
+                    ctx.fillRect(96, 0, 24, 24);
+                    //draw speckles
+                    this.speckles(ctx);
+                    //draw sides tiles
+                    this.sides(ctx);
+                    //draw inner corners
+                    this.innerCorners(ctx);
+                    //draw outer corners
+                    this.outerCorners(ctx);
+                    //mirror sides
+                    ctx.save();
+                    ctx.translate(c.width - (fg.System.defaultSide * ((5 + Object.keys(fg.Render.marioCache).length) - 6)), 0);
+                    ctx.scale(-1, 1);
+                    this.sides(ctx);
+                    ctx.restore();
+                } else {
+                    var tileImage = new Image();
+                    var mario = this;
+                    tileImage.onload = function (e) {
+                        //draw background image
+                        ctx.drawImage(tileImage, 0, 0);
+                        for (var i = 0, key; key = Object.keys(fg.Render.marioCache)[i]; i++) {
+                            //ctx.drawImage(this.renderSubTile(c, key), fg.Render.marioCache[key], 0);
+                            mario.renderSubTile(ctx, key);
+                        }
+                    };
+                    tileImage.src = this.imagePath;
                 }
-
                 return c;
             },
             update: function () {
@@ -681,7 +693,7 @@ fg.Mario = function (id, type, x, y, cx, cy, index) {
                     var cacheY = parseInt(this.cachePosition[key[i + 1]].y);
                     var cacheWidth = fg.System.defaultSide / 2;
                     var cacheHeight = fg.System.defaultSide / 2;
-                    ctx.drawImage(ctx.canvas, cacheX, cacheY, cacheWidth, cacheHeight, posX + this.cachePosition[i / 2].x, this.cachePosition[i / 2].y, 12, 12);
+                    ctx.drawImage(ctx.canvas, cacheX, cacheY, cacheWidth, cacheHeight, posX + this.cachePosition[i / 2].x, this.cachePosition[i / 2].y, (fg.System.defaultSide / 2), (fg.System.defaultSide / 2));
                 }
             },
             drawColor: function (ctx, t_x, t_y, t_w, t_h, color) {
@@ -1700,5 +1712,6 @@ var TYPE = {
     BLUEGEM: "B",
     WHITEGEM: "W",
     ORANGEGEM: "O",
-    CYANGEM: "C"
+    CYANGEM: "C",
+    MARIO: "M"
 }
