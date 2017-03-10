@@ -421,6 +421,7 @@ fg.protoEntity = {
     height: fg.System.defaultSide,
     cacheWidth: fg.System.defaultSide,
     cacheHeight: fg.System.defaultSide,
+    animations: [],
     init: function (id, type, x, y, cx, cy, index) {
         this.type = type;
         this.id = id;
@@ -440,10 +441,8 @@ fg.protoEntity = {
             var c = fg.Render.preRenderCanvas();
             var ctx = c.getContext("2d");
             c = this.drawTile(c, ctx);
-            if (c)
-                fg.Render.draw(fg.Render.cache(this.type, c), this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
-        }
-        else {
+            if (c) fg.Render.draw(fg.Render.cache(this.type, c), this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
+        } else {
             if (!foreGround && !this.backGround || foreGround && !this.foreGround || this.vanished) return;
             fg.Render.draw(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
         }
@@ -464,6 +463,9 @@ fg.protoEntity = {
         ctx.fillStyle = 'rgba(0,0,0,.75)';
         ctx.fillRect(0, 0, this.height, this.width);
         return c;
+    },
+    addAnimation: function (id, x, y, tileSet, duration, loop) {
+        this.animations[id] = fg.Animation(id, x, y, tileSet, duration, loop);
     },
     update: function () { }
 }
@@ -486,6 +488,32 @@ fg.Entity = function (id, type, x, y, cx, cy, index) {
     }
 }
 
+fg.Animation = function (id, x, y, tileSet, duration, loop) {
+    return Object.create({
+        id: id,
+        x: x,
+        y: y,
+        tileSet: tileSet,
+        duration: duration,
+        loop: !!loop,
+        frameInterval: 1 / ((duration * 60) / tileSet.length),
+        curFrame: 0,
+        playing: false,
+        play: function () {
+            if(!this.playing) this.playing = true;
+            return this;
+        },
+        update: function () {
+            if(!this.playing) return;
+            this.curFrame += this.frameInterval;
+            if (!loop && this.curFrame > this.tileSet.left - 1) {
+                this.playing = false;
+                return;
+            }
+        }
+    })
+}
+
 fg.Gem = function (id, type, x, y, cx, cy, index) {
     return Object.assign(
         fg.Game.currentLevel.applyFeaturesToEntity(
@@ -498,8 +526,13 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
             cacheWidth: fg.System.defaultSide,
             cacheHeight: fg.System.defaultSide,
             moveTo: [],
+            curAnimation: null,
+            //[ID,IndexY,indexX,frames,duration,loop]
             isGem: true,
-            drawTile: function (c, ctx) {
+            drawTile: function (c, ctx) {                
+                this.addAnimation("idle", 0, 0, [0], 0.5);
+                this.addAnimation("vanish", 46, 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.5);
+                this.addAnimation("appear", 92, 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.5);
                 //Loading of the home test image
                 var gem = new Image();
 
@@ -550,7 +583,7 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
                 if (this.selected)
                     this.cacheX = fg.System.defaultSide;
                 else
-                    this.cacheX = 0;
+                    this.cacheX = 0;                
                 fg.protoEntity.draw.call(this, foreGround);
             },
             update: function () {
@@ -577,6 +610,7 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
                     this.movingSpeed = Math.abs(this.movingSpeed);
                     return this.moveTo = [];
                 }
+                if(!this.curAnimation) this.curAnimation  = this.animations["appear"].play();
             }
         }, fg.Game.currentLevel.getEntitySettings(type, id));
 }
@@ -937,9 +971,9 @@ fg.Game =
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, fg.System.canvas.width, fg.System.canvas.height);
             
-            this.mainFontNormal.draw("Shapes Assemble!", 10, 80);
+            this.mainFontNormal.draw("Shapes Assemble!", 27, 80);
 
-            this.drawFont("Press space...", "", 120, 180);
+            this.drawFont("Press space...", "", 157, 180);
             /*if (tracks[0].paused) {
                 tracks[0].play();
             }*/
