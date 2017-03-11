@@ -421,8 +421,8 @@ fg.protoEntity = {
     height: fg.System.defaultSide,
     cacheWidth: fg.System.defaultSide,
     cacheHeight: fg.System.defaultSide,
-    animations: [],
     init: function (id, type, x, y, cx, cy, index) {
+        if(!id) return;
         this.type = type;
         this.id = id;
         this.color = "black";
@@ -489,29 +489,36 @@ fg.Entity = function (id, type, x, y, cx, cy, index) {
 }
 
 fg.Animation = function (id, x, y, tileSet, duration, loop) {
-    return Object.create({
-        id: id,
-        x: x,
-        y: y,
-        tileSet: tileSet,
-        duration: duration,
-        loop: !!loop,
-        frameInterval: 1 / ((duration * 60) / tileSet.length),
-        curFrame: 0,
-        playing: false,
+    return Object.assign(Object.create({
         play: function () {
-            if(!this.playing) this.playing = true;
+            if (!this.playing) this.playing = true;
             return this;
         },
-        update: function () {
-            if(!this.playing) return;
+        update: function (entity) {
+            if (!this.playing || !entity) return;
             this.curFrame += this.frameInterval;
-            if (!loop && this.curFrame > this.tileSet.left - 1) {
+            if (!this.loop && this.curFrame > this.tileSet.length - 1) {
                 this.playing = false;
+                entity.cacheX = 0;
+                entity.cacheY = 0;
+                this.curFrame = 0;
                 return;
             }
+            if (this.curFrame > this.tileSet.length) this.curFrame = 0;
+            entity.cacheX = this.x + (this.tileSet[Math.floor(this.curFrame)] * fg.System.defaultSide);
+            entity.cacheY = this.y;
         }
-    })
+    }), {
+        id: id,
+            x: x,
+            y: y,
+            tileSet: tileSet,
+            duration: duration,
+            loop: !!loop,
+            frameInterval: 1 / ((duration * 60) / tileSet.length),
+            curFrame: 0,
+            playing: false
+        })
 }
 
 fg.Gem = function (id, type, x, y, cx, cy, index) {
@@ -527,12 +534,18 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
             cacheHeight: fg.System.defaultSide,
             moveTo: [],
             curAnimation: null,
+            animations: [],
             //[ID,IndexY,indexX,frames,duration,loop]
             isGem: true,
-            drawTile: function (c, ctx) {                
+            init: function(){
                 this.addAnimation("idle", 0, 0, [0], 0.5);
-                this.addAnimation("vanish", 46, 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.5);
-                this.addAnimation("appear", 92, 0, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.5);
+                this.addAnimation("vanish", 0, 46, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.3);
+                this.addAnimation("appear", 0, 92, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 0.5);//0.5
+                return this;
+            },
+            drawTile: function (c, ctx) {   
+                c.width = 460;
+                c.height = 138;
                 //Loading of the home test image
                 var gem = new Image();
 
@@ -580,39 +593,41 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
                 }
             },
             draw: function (foreGround) {
-                if (this.selected)
-                    this.cacheX = fg.System.defaultSide;
-                else
-                    this.cacheX = 0;                
+                // if (this.selected)
+                //     this.cacheX = fg.System.defaultSide;
+                // else
+                //     this.cacheX = 0;                
                 fg.protoEntity.draw.call(this, foreGround);
             },
             update: function () {
-                if (this.moveTo.length == 0) return;
-                if (this.moveTo[0] != this.getRow()) {
-                    this.movingSpeed = this.moveTo[0] > this.getRow() ? Math.abs(this.movingSpeed) : -Math.abs(this.movingSpeed);
-                    this.y += this.movingSpeed * fg.Timer.deltaTime;
-                } else {
-                    this.movingSpeed = this.moveTo[1] > this.getCol() ? Math.abs(this.movingSpeed) : -Math.abs(this.movingSpeed);
-                    this.x += this.movingSpeed * fg.Timer.deltaTime;
-                }
-                if (this.moveTo[0] == this.getRow() && this.moveTo[1] == this.getCol()) {
-                    this.x = Math.round(this.x);
-                    this.y = Math.round(this.y);                    
-                    if (!Object.is(fg.Game.currentLevel.entities[this.moveTo[0]][this.moveTo[1]], this)) {
-                        var lastRow = parseInt(this.id.split('-')[0]), lastCol = parseInt(this.id.split('-')[1]);
-                        var obj = fg.Game.currentLevel.entities[this.moveTo[0]][this.moveTo[1]];
-                        obj.draw();
-                        obj.id = lastRow + '-' + lastCol;
-                        fg.Game.currentLevel.entities[lastRow][lastCol] = obj;
-                        this.id = this.moveTo[0] + '-' + this.moveTo[1];
-                        fg.Game.currentLevel.entities[this.moveTo[0]][this.moveTo[1]] = this;
+                if (this.moveTo.length != 0) {
+                    if (this.moveTo[0] != this.getRow()) {
+                        this.movingSpeed = this.moveTo[0] > this.getRow() ? Math.abs(this.movingSpeed) : -Math.abs(this.movingSpeed);
+                        this.y += this.movingSpeed * fg.Timer.deltaTime;
+                    } else {
+                        this.movingSpeed = this.moveTo[1] > this.getCol() ? Math.abs(this.movingSpeed) : -Math.abs(this.movingSpeed);
+                        this.x += this.movingSpeed * fg.Timer.deltaTime;
                     }
-                    this.movingSpeed = Math.abs(this.movingSpeed);
-                    return this.moveTo = [];
+                    if (this.moveTo[0] == this.getRow() && this.moveTo[1] == this.getCol()) {
+                        this.x = Math.round(this.x);
+                        this.y = Math.round(this.y);
+                        if (!Object.is(fg.Game.currentLevel.entities[this.moveTo[0]][this.moveTo[1]], this)) {
+                            var lastRow = parseInt(this.id.split('-')[0]), lastCol = parseInt(this.id.split('-')[1]);
+                            var obj = fg.Game.currentLevel.entities[this.moveTo[0]][this.moveTo[1]];
+                            obj.draw();
+                            obj.id = lastRow + '-' + lastCol;
+                            fg.Game.currentLevel.entities[lastRow][lastCol] = obj;
+                            this.id = this.moveTo[0] + '-' + this.moveTo[1];
+                            fg.Game.currentLevel.entities[this.moveTo[0]][this.moveTo[1]] = this;
+                        }
+                        this.movingSpeed = Math.abs(this.movingSpeed);
+                        return this.moveTo = [];
+                    }
                 }
-                if(!this.curAnimation) this.curAnimation  = this.animations["appear"].play();
+                if (!this.curAnimation) this.curAnimation = this.animations["vanish"].play();
+                this.curAnimation.update(this);
             }
-        }, fg.Game.currentLevel.getEntitySettings(type, id));
+        }, fg.Game.currentLevel.getEntitySettings(type, id)).init();
 }
 
 fg.Interactive = {
