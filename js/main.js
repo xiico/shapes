@@ -1476,7 +1476,7 @@ fg.Input = {
             fg.System.context.fill();
             fg.Input.log("touchstart:" + i + ".");
         }
-        fg.Game.updateWholeScreen = false;
+        //fg.Game.updateWholeScreen = false;
         fg.Game.touchStart(touches);
         if(!fg.Game.started) fg.Game.started = true;
     },
@@ -1502,7 +1502,7 @@ fg.Input = {
             }
         }
         fg.Game.touchEnd(touches);
-        fg.Game.updateWholeScreen = true;
+        //fg.Game.updateWholeScreen = true;
     },
     handleCancel: function (evt) {
         evt.preventDefault();
