@@ -624,7 +624,7 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
                         return this.moveTo = [];
                     }
                 }
-                if (!this.curAnimation) this.curAnimation = this.animations["vanish"].play();
+                if (!this.curAnimation) this.curAnimation = this.animations["appear"].play();
                 this.curAnimation.update(this);
             }
         }, fg.Game.currentLevel.getEntitySettings(type, id)).init();
