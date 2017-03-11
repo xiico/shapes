@@ -904,7 +904,7 @@ fg.Game =
             if(row >= fg.Game.currentLevel.entities.length || col >= fg.Game.currentLevel.entities[0].length) return;
             var entity = fg.Game.currentLevel.entities[row][col];            
             this.selectedGem = entity;
-
+            if(this.selectedGem.curAnimation) this.selectedGem.curAnimation.play();
         },
         touchEnd: function(touches){            
             var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
