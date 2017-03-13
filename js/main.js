@@ -345,6 +345,7 @@ fg.protoLevel = {
             var bg = new Image();
             bg.src = 'resources/bg.png';
             this.bgImage = bg;
+            fg.Game.spriteSheets.push(bg);
         }
     },
     addEntity: function (row, col, i, k, cx, cy, idx) {
@@ -556,6 +557,7 @@ fg.Gem = function (id, type, x, y, cx, cy, index) {
                 };
 
                 gem.src = 'resources/' + this.getColor() +'gem.png';   
+                fg.Game.spriteSheets.push(gem);
                 return c;
             },
             getRow: function(){             
@@ -666,6 +668,7 @@ fg.Mario = function (id, type, x, y, cx, cy, index) {
                         }
                     };
                     tileImage.src = this.imagePath;
+                    fg.Game.spriteSheets.push(tileImage);
                 return c;
             },
             update: function () {
@@ -757,6 +760,7 @@ fg.Game =
         },
         screenShot: undefined,
         loadedSaveStations: [],
+        spriteSheets: [],
         mainFontSmall: null,
         mainFontNormal: null,
         start: function () {
@@ -801,7 +805,7 @@ fg.Game =
             }
         },
         run: function () {
-            if (fg.Game.currentLevel.loaded) {
+            if (fg.Game.currentLevel.loaded && fg.Game.checkAllCached()) {
                 if (!fg.Game.started) {
                     if (Object.keys(fg.Input.actions).length > 0) {
                         fg.Input.actions = {};
@@ -813,6 +817,13 @@ fg.Game =
             } else fg.Game.drawLoading(10, fg.System.canvas.height - 20, fg.System.canvas.width - 20, 20);
 
             requestAnimationFrame(fg.Game.run);
+        },
+        checkAllCached: function(){
+            var result = true;
+            for (var index = 0, elmt;  elmt = fg.Game.spriteSheets[index]; index++) {
+                if(!elmt.complete) result = false;                
+            }
+            return result;
         },
         clearScreen: function () {
             fg.System.context.fillStyle = fg.System.platform.mobile ? "deepSkyBlue" : "rgb(55,55,72)";
