@@ -921,22 +921,34 @@ fg.Game =
         touchEnd: function(touches){            
             var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
             var col = Math.floor((touches[0].pageX+fg.Game.screenOffsetY)/fg.System.defaultSide);
-            if(row < 0 || col < 0 || row >= fg.Game.currentLevel.entities.length || !this.selectedGem || !this.selectedGem.isGem
-            || col >= fg.Game.currentLevel.entities[0].length || (this.selectedGem.getRow() == row && this.selectedGem.getCol() == col)) return;
-            if(row != this.selectedGem.getRow() && col != this.selectedGem.getCol()){
-                var diffRow = Math.abs(row - this.selectedGem.getRow());
-                var diffCol = Math.abs(col - this.selectedGem.getCol());
-                if(diffRow > diffCol) {
-                    row = this.selectedGem.getRow() + (row > this.selectedGem.getRow() ? 1 : -1);
-                    col = this.selectedGem.getCol();
-                } else {
-                    col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
-                    row = this.selectedGem.getRow();
-                }
-            } else if(row != this.selectedGem.getRow()){
+            if(!this.selectedGem || !this.selectedGem.isGem) return;
+            // if(row < 0 || col < 0 || row >= fg.Game.currentLevel.entities.length || !this.selectedGem || !this.selectedGem.isGem
+            // || col >= fg.Game.currentLevel.entities[0].length || (this.selectedGem.getRow() == row && this.selectedGem.getCol() == col)) return;
+            // if(row != this.selectedGem.getRow() && col != this.selectedGem.getCol()){
+            //     var diffRow = Math.abs(row - this.selectedGem.getRow());
+            //     var diffCol = Math.abs(col - this.selectedGem.getCol());
+            //     if(diffRow > diffCol) {
+            //         row = this.selectedGem.getRow() + (row > this.selectedGem.getRow() ? 1 : -1);
+            //         col = this.selectedGem.getCol();
+            //     } else {
+            //         col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
+            //         row = this.selectedGem.getRow();
+            //     }
+            // } else if(row != this.selectedGem.getRow()){
+            //     row = this.selectedGem.getRow() + (row > this.selectedGem.getRow() ? 1 : -1);
+            // } else {
+            //     col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
+            // }
+            var diffRow = Math.abs(row - this.selectedGem.getRow());
+            var diffCol = Math.abs(col - this.selectedGem.getCol());
+            if(diffRow > diffCol) {                
                 row = this.selectedGem.getRow() + (row > this.selectedGem.getRow() ? 1 : -1);
+                if(row < 0 || row >= fg.Game.currentLevel.entities.length  ) return;
+                col = this.selectedGem.getCol();
             } else {
+                if(col < 0 || col >= fg.Game.currentLevel.entities[0].length)
                 col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
+                row = this.selectedGem.getRow();
             }
             var entity = fg.Game.currentLevel.entities[row][col];    
             if(!entity || !entity.isGem) return; 
