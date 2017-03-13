@@ -839,9 +839,10 @@ fg.Game =
                 fg.System.context.fillStyle = "white";
                 fg.System.context.fillRect(x + 1, y + 1, (pos * width) - 2, height - 2);
             } else {
-                fg.System.context.font = "15px Arial";
-                fg.System.context.fillStyle = "black";
-                fg.System.context.fillText("Loading...", x, y);
+                // fg.System.context.font = "15px Arial";
+                // fg.System.context.fillStyle = "black";
+                // fg.System.context.fillText("Loading...", x, y);
+                this.mainFontSmall.draw("Loading...", 150, 180);
             }
         },
         saveState: function () {
