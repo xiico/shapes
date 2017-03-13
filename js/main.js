@@ -946,8 +946,8 @@ fg.Game =
                 if(row < 0 || row >= fg.Game.currentLevel.entities.length  ) return;
                 col = this.selectedGem.getCol();
             } else {
-                if(col < 0 || col >= fg.Game.currentLevel.entities[0].length)
                 col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
+                if(col < 0 || col >= fg.Game.currentLevel.entities[0].length) return;
                 row = this.selectedGem.getRow();
             }
             var entity = fg.Game.currentLevel.entities[row][col];    
