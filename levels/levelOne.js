@@ -1,7 +1,7 @@
 var levelOne = {tiles:
+"        \n"+
 " MM  MM \n"+
 " M    M \n"+
-"        \n"+
 "        \n"+
 "        \n"+
 " M    M \n"+
