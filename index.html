@@ -4,16 +4,30 @@
     <title>Falling</title>
     <!--<link href="css/class.css" rel="stylesheet" />-->
     <link rel="manifest" href="manifest.webmanifest">
-    <meta content='width=380, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta content='initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
     <meta charset="utf-8" />
     <style type="text/css">
-        body {
+        html,body {
             background-repeat: no-repeat;
-            margin: 4px 0 0 2px;
+            /*margin: 4px 0 0 2px;
             width: 336px;
             /*color: #fff;*/
+            margin:1px;
+            height:100%;
+            overflow:hidden;
         }
-        
+
+        canvas {
+            /*min-height:100%;
+            min-width:100%;*/
+            height:auto;
+            width:auto;
+            position:absolute;
+            top:-100%; bottom:-100%;
+            left:-100%; right:-100%;
+            margin:auto;
+        }
+
         .divControls {
             float: left;
         }
