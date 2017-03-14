@@ -933,7 +933,7 @@ fg.Game =
                 row = this.selectedGem.getRow();
             }
             var entity = fg.Game.currentLevel.entities[row][col];    
-            if(!entity || !entity.isGem) return; 
+            if(!entity || !entity.isGem || (!diffCol && !diffRow)) return; 
             // entity.selected = !entity.selected;
             this.selectedGem.moveTo.push(row); 
             this.selectedGem.moveTo.push(col);
