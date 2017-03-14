@@ -500,7 +500,7 @@ fg.Animation = function (id, x, y, tileSet, duration, loop) {
             this.curFrame += this.frameInterval;
             if (!this.loop && this.curFrame > this.tileSet.length - 1) {
                 this.playing = false;
-                entity.cacheX = 0;
+                entity.cacheX = !entity.checked ? 0 : fg.System.defaultSide;
                 entity.cacheY = 0;
                 this.curFrame = 0;
                 return;
@@ -939,6 +939,7 @@ fg.Game =
             this.selectedGem.moveTo.push(col);
             entity.moveTo.push(this.selectedGem.getRow());
             entity.moveTo.push(this.selectedGem.getCol());
+            this.chains = null;
         },
         outOfScene: function (obj) {
             return obj.x > fg.Camera.right || obj.x + obj.width < fg.Camera.left || obj.y > fg.Camera.bottom || obj.y + obj.height < fg.Camera.top;
@@ -1019,9 +1020,14 @@ fg.Game =
                 this.findChainTypes();
             }
             //(function(){findByType(TYPE.BLUEGEM)})();
+            this.chains.forEach(function(chain) { 
+                chain.elements.forEach(function(element) {
+                    fg.Game.checkSides(element, chain);
+                }, this);
+             }, this);
             for (var index = 0; index < this.chains.length; index++) {
                 var element = this.chains[index];
-                this.mainFontSmall.draw(element.id + ': ' + element.chains.length, 8, 390 + (index * 8));
+                this.mainFontSmall.draw(element.id + ': ' + element.elements.length, 8, 390 + (index * 8));
             }
         },
         findChainTypes: function(){            
@@ -1031,9 +1037,48 @@ fg.Game =
                     if(!element || !element.isGem) continue;
                     var chainType = this.chains.find(function (e) { return e.id == element.type })
                     if (!chainType) 
-                        this.chains.push({ id: element.type, chains: [element.id] })
+                        this.chains.push({ id: element.type, elements: [element] })
                     else
-                        chainType.chains.push(element.id)       
+                        chainType.elements.push(element)       
+                }
+            }
+        },
+        checkSides: function (gem, chains) {
+            var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]);
+            for (var i = 0; i < 4; i++) {
+                switch (i) {
+                    case 0:
+                        if (posX - 1 < 0) break;
+                        var check = chains.elements.find(function (e) { return e.id == (posY - 1) + '-' + posX; });
+                        if (check && check.type == gem.type && !check.checked) {
+                            check.checked = true;
+                            this.checkSides(check, chains);
+                        }
+                        break;
+                    case 1:
+                        if (posY - 1 < 0) break;
+                        var check = chains.elements.find(function (e) { return e.id == (posY) + '-' + (posX - 1); });
+                        if (check && check.type == gem.type && !check.checked) {
+                            check.checked = true;
+                            this.checkSides(check, chains);
+                        }
+                        break;
+                    case 2:
+                        if (posX + 1 >= fg.Game.currentLevel.entities[0].length) break;
+                        var check = chains.elements.find(function (e) { return e.id == (posY + 1) + '-' + (posX); });
+                        if (check && check.type == gem.type && !check.checked) {
+                            check.checked = true;
+                            this.checkSides(check, chains);
+                        }
+                        break;
+                    default:
+                        if (posY + 1 >= fg.Game.currentLevel.entities.length) break;
+                        var check = chains.elements.find(function (e) { return e.id == (posY) + '-' + (posX + 1); });
+                        if (check && check.type == gem.type && !check.checked) {
+                            check.checked = true;
+                            this.checkSides(check, chains);
+                        }
+                        break;
                 }
             }
         }
