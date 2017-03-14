@@ -889,7 +889,7 @@ fg.Game =
                     entity.update(true);
                     entity.draw(true);
                 }
-                this.parseBoard();
+                //this.parseBoard();
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
