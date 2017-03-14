@@ -948,6 +948,7 @@ fg.Game =
             if (!fg.Game.outOfScene(obj)) obj.draw();
             if (!obj.foreGround || obj.backGround) obj.update();            
             if (obj.foreGround) fg.Game.foreGroundEntities.push(obj);
+            if (obj.isGem && !fg.Game.chains && obj.checked) obj.checked = false;
         },
         searchArea: function (startX, startY, depthX, depthY, loopCallBack, endLoopCallBack, caller) {
             this.currentEntities = [];
@@ -1046,7 +1047,6 @@ fg.Game =
         },
         checkSides: function (gem, chains) {
             var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]);
-            gem.checked = false;
             for (var i = 0; i < 4; i++) {
                 switch (i) {
                     case 0:
