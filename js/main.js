@@ -508,9 +508,8 @@ fg.Animation = function (id, x, y, tileSet, duration, loop) {
             if (this.curFrame > this.tileSet.length) this.curFrame = 0;
             entity.cacheX = this.x + (this.tileSet[Math.floor(this.curFrame)] * fg.System.defaultSide);
             entity.cacheY = this.y;
-        }
-    }), {
-        id: id,
+        }}), {
+            id: id,
             x: x,
             y: y,
             tileSet: tileSet,
@@ -890,7 +889,7 @@ fg.Game =
                     entity.update(true);
                     entity.draw(true);
                 }
-                this.mainFontSmall.draw("pagy faq!@#&*('<>?/|\\0123456789)", 0, 390);
+                this.parseBoard();
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
@@ -922,23 +921,6 @@ fg.Game =
             var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
             var col = Math.floor((touches[0].pageX+fg.Game.screenOffsetY)/fg.System.defaultSide);
             if(!this.selectedGem || !this.selectedGem.isGem) return;
-            // if(row < 0 || col < 0 || row >= fg.Game.currentLevel.entities.length || !this.selectedGem || !this.selectedGem.isGem
-            // || col >= fg.Game.currentLevel.entities[0].length || (this.selectedGem.getRow() == row && this.selectedGem.getCol() == col)) return;
-            // if(row != this.selectedGem.getRow() && col != this.selectedGem.getCol()){
-            //     var diffRow = Math.abs(row - this.selectedGem.getRow());
-            //     var diffCol = Math.abs(col - this.selectedGem.getCol());
-            //     if(diffRow > diffCol) {
-            //         row = this.selectedGem.getRow() + (row > this.selectedGem.getRow() ? 1 : -1);
-            //         col = this.selectedGem.getCol();
-            //     } else {
-            //         col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
-            //         row = this.selectedGem.getRow();
-            //     }
-            // } else if(row != this.selectedGem.getRow()){
-            //     row = this.selectedGem.getRow() + (row > this.selectedGem.getRow() ? 1 : -1);
-            // } else {
-            //     col = this.selectedGem.getCol() + (col > this.selectedGem.getCol() ? 1 : -1);
-            // }
             var diffRow = Math.abs(row - this.selectedGem.getRow());
             var diffCol = Math.abs(col - this.selectedGem.getCol());
             if(diffRow > diffCol) {                
@@ -1031,33 +1013,27 @@ fg.Game =
             fg.System.context.fillStyle = "rgba(255,255,255," + fg.Game.fontAnimation.blinkText / 100 + ")";
             fg.System.context.fillText(text, x, y);
         },
-        drawBackGround: function () {
-            var bgSize = 4;
-            var bgRow = Math.floor(((c.height / 2) + moveDown) * .5 / (defaultHeight * 2));
-            var bgColumn = Math.floor(((c.width / 2) + scroller) * .5 / (defaultWidth * 2));
-
-            var bgDrawDepthX = disableBG ? -1 : 4;//6
-            var bgDrawDepthY = disableBG ? -1 : 3;//6
-
-            var startBgRowIndex = /*bgRow - bgDrawDepthY < 0 ? 0 :*/ bgRow - bgDrawDepthY;
-            var endBgRowIndex = bgRow + bgDrawDepthY;
-
-            var startBgColIndex = /*bgColumn - bgDrawDepthX < 0 ? 0 :*/ bgColumn - bgDrawDepthX;
-            var endBgColIndex = bgColumn + bgDrawDepthX;
-
-            for (var i = startBgRowIndex; i <= endBgRowIndex; i++) {
-                for (var k = startBgColIndex, obj; k <= endBgColIndex; k++) {
-                    var bgRowIndex = (i > 0 ? i : bgSize + i) % bgSize;
-                    var bgColIndex = (k > 0 ? k : bgSize + k) % bgSize;
-                    obj = BackGround[bgRowIndex][bgColIndex];
-                    if (!obj)
-                        continue;
-
-                    obj.bgOffSetX = ((Math.floor(k / bgSize) * (defaultWidth * 2) * bgSize)) + (obj.width * 2);
-                    obj.bgOffSetY = ((Math.floor(i / bgSize) * (defaultHeight * 2) * bgSize)) + (obj.height);
-
-                    if (obj.isVisible())
-                        obj.Draw();
+        parseBoard: function () {
+            if (!this.chains) {
+                this.chains = [];
+                this.findChainTypes();
+            }
+            //(function(){findByType(TYPE.BLUEGEM)})();
+            for (var index = 0; index < this.chains.length; index++) {
+                var element = this.chains[index];
+                this.mainFontSmall.draw(element.id + ': ' + element.chains.length, 8, 390 + (index * 8));
+            }
+        },
+        findChainTypes: function(){            
+            for (var k = 0, row; row = fg.Game.currentLevel.entities[k]; k++) {
+                for (var l = 0; l < row.length; l++) {
+                    var element = row[l];
+                    if(!element || !element.isGem) continue;
+                    var chainType = this.chains.find(function (e) { return e.id == element.type })
+                    if (!chainType) 
+                        this.chains.push({ id: element.type, chains: [element.id] })
+                    else
+                        chainType.chains.push(element.id)       
                 }
             }
         }
