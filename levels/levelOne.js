@@ -1,10 +1,10 @@
 var levelOne = {tiles:
 "        \n"+
 " MM  MM \n"+
-" M    M \n"+
-"        \n"+
-"        \n"+
-" M    M \n"+
+" M   WMR\n"+
+"     GBB\n"+
+"     COB\n"+
+" M    MR\n"+
 " MM  MM \n"+
 "        ",
     customProperties: []}
