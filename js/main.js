@@ -910,6 +910,10 @@ fg.Game =
             fg.Timer.update();
         },
         touchStart: function(touches){            
+            if(!fg.Game.started) {
+                fg.Game.started = true; 
+                return;
+            }     
             var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
             var col = Math.floor((touches[0].pageX+fg.Game.screenOffsetY)/fg.System.defaultSide);
             if(row >= fg.Game.currentLevel.entities.length || col >= fg.Game.currentLevel.entities[0].length) return;
@@ -1529,7 +1533,6 @@ fg.Input = {
         }
         //fg.Game.updateWholeScreen = false;
         fg.Game.touchStart(touches);
-        if(!fg.Game.started) fg.Game.started = true;
     },
     handleEnd: function (evt) {
         evt.preventDefault();
