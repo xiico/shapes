@@ -1054,6 +1054,7 @@ fg.Game =
         },
         checkSides: function (gem, chain) {
             var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]);
+            if(chain.elements.length == 1) return gem.checked = true;
             var checks = 0;
             for (var i = 0; i < 4; i++) {
                 switch (i) {
