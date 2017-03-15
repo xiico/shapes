@@ -1382,8 +1382,13 @@ fg.UI = {
             } else {
                 var img = new Image();
                 img.src = this.spriteSheet;
+                var canvas = fg.$new("canvas");
+                img.onload = function () {
+                    //draw background image
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                };
                 if (!fg.Render.cached[this.type])
-                    fg.Render.drawToCache(img, startX + this.x, startY + this.y, this.type);
+                    fg.Render.cache(this.type, canvas);
                 else
                     fg.Render.draw(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
             }
