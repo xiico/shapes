@@ -1383,7 +1383,7 @@ fg.UI = {
                 var img = new Image();
                 img.src = this.spriteSheet;
                 if (!fg.Render.cached[this.type])
-                    fg.Render.drawToCache(img, startX + this.x, startY + this.y, type);
+                    fg.Render.drawToCache(img, startX + this.x, startY + this.y, this.type);
                 else
                     fg.Render.draw(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
             }
