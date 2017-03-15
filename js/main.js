@@ -765,6 +765,7 @@ fg.Game =
         spriteSheets: [],
         mainFontSmall: null,
         mainFontNormal: null,
+        levelComplete: false,
         start: function () {
             this.mainFontSmall = fg.Font('resources/OldskoolOutline.png');
             this.mainFontNormal = fg.Font('resources/font.png');
@@ -896,15 +897,17 @@ fg.Game =
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
             } else { 
-                if (!this.screenShot) {
-                    var img = new Image();
-                    img.src = fg.System.canvas.toDataURL();
-                    this.screenShot = img;
-                }
-                fg.Render.drawImage(this.screenShot, 0, 0);
-                if (!this.saving) {
+                // if (!this.screenShot) {
+                //     var img = new Image();
+                //     img.src = fg.System.canvas.toDataURL();
+                //     this.screenShot = img;
+                //     fg.Render.drawImage(this.screenShot, 0, 0);
+                // }
+                
+                if (!this.levelComplete) {
                     fg.System.context.fillStyle = "black";
-                    this.drawFont("PAUSED", "", (fg.System.canvas.width / 2) - 12, 180);
+                    //this.drawFont("PAUSED", "", (fg.System.canvas.width / 2) - 12, 180);
+                    this.mainFontSmall.draw("PAUSED", 150, 180);
                 } else {
                     fg.UI.update();
                     fg.UI.draw();
@@ -1040,10 +1043,13 @@ fg.Game =
                 }, this);
             }
             if(!this.chains) return;
+            this.levelComplete = true;
             for (var index = 0; index < this.chains.length; index++) {
                 var chain = this.chains[index];
                 this.mainFontSmall.draw(chain.id + ': ' + chain.count + (chain.count == chain.checks ? " $" : ""), 8, 390 + (index * 8));
+                if(chain.count != chain.checks) this.levelComplete = false;
             }
+            if(this.levelComplete) fg.Game.paused = true;
         },
         findChainTypes: function(){            
             for (var k = 0, row; row = fg.Game.currentLevel.entities[k]; k++) {
@@ -1144,71 +1150,19 @@ fg.UI = {
     closeAll: false,
     init: function () {
         this.mainForm = Object.assign(Object.create(this.control), this.container, this.form, {
-            id: "mainForm", active: true, animate: true, showBorder: true, visible: true, width: 100, height: 80, controls: [],
-            x: (fg.System.canvas.width / 2) - (100 / 2),
-            y: (fg.System.canvas.height / 2) - (80 / 2)
+            id: "mainForm", active: true, animate: true, showBorder: true, visible: true, width: 76, height: 38, controls: [],
+            x: 275,
+            y: 400
         });
         var buttonList = Object.assign(Object.create(this.control), this.container, {
             id: "buttonList", active: true, animate: false, visible: true, width: 100, height: 80, controls: [], x: 0, y: 0
         });
-        var saveStationList = Object.assign(Object.create(this.control), this.container, this.form, {
-            id: "saveStationList", active: true, animate: true, showBorder: true, visible: false, width: 240, height: 192, controls: [], x: -70, y: -60
-        });
         this.mainForm.addControl(buttonList);
-        this.mainForm.addControl(saveStationList);
-        saveStationList.addControl(Object.assign(Object.create(this.control), this.container, {
-            id: "ssList", active: true, animate: false, showBorder: true, visible: true, width: 232, height: 64, controls: [], x: 4, y: 124
-        }));
         buttonList.addControl(Object.assign(Object.create(this.control), this.button, {
-            id: "save", text: "SAVE", highlighted: true, controls: [],
+            id: "next", text: "Next", highlighted: true, controls: [],
             click: function () {
-                fg.Game.saveState();
+                fg.Game.Next();
                 return true;
-            }
-        }));
-        buttonList.addControl(Object.assign(Object.create(this.control), this.button, {
-            id: "warp", controls: [], text: "WARP",
-            click: function () {
-                var saveStationList = fg.UI.mainForm.controls.find(function (e) { return e.id == "saveStationList" });
-                saveStationList.getActiveContainer().controls = [];
-                for (var i = 0, ctrl; ctrl = fg.Game.loadedSaveStations[i]; i++) {
-                    saveStationList.getActiveContainer().addControl(Object.assign(Object.create(fg.UI.control), fg.UI.button, {
-                        id: "ss-" + ctrl.id, text: ctrl.id, highlighted: i == 0, controls: [],
-                        image: ctrl.screen, ctrl: ctrl, width: 40,
-                        click: function () {
-                            fg.Game.warp(fg.Game.actors[0], { y: (parseInt(this.ctrl.id.split("-")[0]) - 1), x: parseInt(this.ctrl.id.split("-")[1]) });
-                            fg.UI.closeAll = true;
-                            return true;
-                        }
-                    }));
-                }
-                saveStationList.visible = true;
-                if (fg.Input.actions["up"]) delete fg.Input.actions["up"];
-                if (fg.Input.actions["enter"]) delete fg.Input.actions["enter"];
-            }
-        }));
-        buttonList.addControl(Object.assign(Object.create(this.control), this.button, {
-            id: "delete", text: "DELETE", controls: [], click: function () {
-                if (!fg.UI.mainForm.controls.find(function (e) { return e.id == "confirm" }))
-                    fg.UI.mainForm.addControl(Object.assign(Object.create(fg.UI.control), fg.UI.container, fg.UI.form, fg.UI.confirm, {
-                        text: "Confirm deletion? (All your progress will be lost!)",
-                        id: "confirm",
-                        controls: [],
-                        x: (this.parent.realX / 2) - (fg.UI.confirm.width / 2),
-                        y: (this.parent.realY / 2) - (fg.UI.confirm.height / 2),
-                        click: function (result) {
-                            if (result) {
-                                fg.UI.closeAll = true;
-                                delete localStorage.fallingSaveState;
-                            }
-                            if (fg.Input.actions["up"]) delete fg.Input.actions["up"];
-                            if (fg.Input.actions["enter"]) delete fg.Input.actions["enter"];
-                            return result;
-                        }
-                    }));
-                else fg.UI.mainForm.controls.find(function (e) { return e.id == "confirm" }).show();
-                if (fg.Input.actions["up"]) delete fg.Input.actions["up"];
-                if (fg.Input.actions["enter"]) delete fg.Input.actions["enter"];
             }
         }));
     },
@@ -1406,20 +1360,33 @@ fg.UI = {
         highlighted: false,
         x: 0,
         y: 0,
+        cacheX: 0,
+        cacheY: 0,
         realX: 0,
         realY: 0,
-        width: 48,
-        height: 12,
+        width: 76,
+        height: 38,
         positionRelative: true,
         visible: true,
+        useSprites: true,
+        spriteSheet: 'resources/button.png',
         draw: function () {
             if (!this.visible) return;
             var startX = this.positionRelative ? this.realX : 0;
             var startY = this.positionRelative ? this.realY : 0;
-            fg.System.context.fillStyle = this.highlighted ? this.highlightedColor : this.fillColor;
-            fg.System.context.fillRect(startX + this.x, startY + this.y, this.width, this.height);
-            fg.System.context.fillStyle = this.fillColor;
-            fg.System.context.fillRect(startX + this.x + 1, startY + this.y + 1, this.width - 2, this.height - 2);
+            if (!this.useSprites) {
+                fg.System.context.fillStyle = this.highlighted ? this.highlightedColor : this.fillColor;
+                fg.System.context.fillRect(startX + this.x, startY + this.y, this.width, this.height);
+                fg.System.context.fillStyle = this.fillColor;
+                fg.System.context.fillRect(startX + this.x + 1, startY + this.y + 1, this.width - 2, this.height - 2);
+            } else {
+                var img = new Image();
+                img.src = this.spriteSheet;
+                if (!fg.Render.cached[this.type])
+                    fg.Render.drawToCache(img, startX + this.x, startY + this.y, type);
+                else
+                    fg.Render.draw(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
+            }
         },
         parent: null,
         addControl: function (obj) {
