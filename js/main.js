@@ -1016,7 +1016,7 @@ fg.Game =
             fg.System.context.fillText(text, x, y);
         },
         parseBoard: function () {
-            if (!this.chains) {
+            if (!this.chains && (!fg.Game.selectedGem || (fg.Game.selectedGem && !fg.Game.selectedGem.curAnimation.playing))) {
                 this.chains = [];
                 this.findChainTypes();
                 //(function(){findByType(TYPE.BLUEGEM)})();
