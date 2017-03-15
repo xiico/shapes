@@ -1052,47 +1052,43 @@ fg.Game =
                 }
             }
         },
-        checkSides: function (gem, chains) {
+        checkSides: function (gem, chain) {
             var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]);
+            var checks = 0;
             for (var i = 0; i < 4; i++) {
                 switch (i) {
                     case 0:
                         if (posX - 1 < 0) break;
-                        var check = chains.elements.find(function (e) { return e.id == (posY) + '-' + (posX - 1); });
-                        if (check && check.type == gem.type && !check.checked) {
-                            check.checked = true;
-                            if(!gem.checked) gem.checked = true;
-                            this.checkSides(check, chains);
-                        }
+                        var check = chain.elements.find(function (e) { return e.id == (posY) + '-' + (posX - 1); });
+                        if(check) checks++;
+                        this.checkGemType(check, gem, chain);
                         break;
                     case 1:
                         if (posY - 1 < 0) break;
-                        var check = chains.elements.find(function (e) { return e.id == (posY - 1) + '-' + (posX); });
-                        if (check && check.type == gem.type && !check.checked) {
-                            check.checked = true;
-                            if(!gem.checked) gem.checked = true;
-                            this.checkSides(check, chains);
-                        }
+                        var check = chain.elements.find(function (e) { return e.id == (posY - 1) + '-' + (posX); });
+                        if(check) checks++;
+                        this.checkGemType(check, gem, chain);
                         break;
                     case 2:
                         if (posX + 1 >= fg.Game.currentLevel.entities[0].length) break;
-                        var check = chains.elements.find(function (e) { return e.id == (posY) + '-' + (posX + 1); });
-                        if (check && check.type == gem.type && !check.checked) {
-                            check.checked = true;
-                            if(!gem.checked) gem.checked = true;
-                            this.checkSides(check, chains);
-                        }
+                        var check = chain.elements.find(function (e) { return e.id == (posY) + '-' + (posX + 1); });
+                        if(check) checks++;
+                        this.checkGemType(check, gem, chain);
                         break;
                     default:
                         if (posY + 1 >= fg.Game.currentLevel.entities.length) break;
-                        var check = chains.elements.find(function (e) { return e.id == (posY + 1) + '-' + (posX); });
-                        if (check && check.type == gem.type && !check.checked) {
-                            check.checked = true;
-                            if(!gem.checked) gem.checked = true;
-                            this.checkSides(check, chains);
-                        }
+                        var check = chain.elements.find(function (e) { return e.id == (posY + 1) + '-' + (posX); });
+                        if(check) checks++;
+                        this.checkGemType(check, gem, chain);
                         break;
                 }
+            }
+        }, 
+        checkGemType: function (check, gem, chain) {
+            if (check && check.type == gem.type && !check.checked) {
+                check.checked = true;
+                if (!gem.checked) gem.checked = true;
+                this.checkSides(check, chain);
             }
         }
     }
