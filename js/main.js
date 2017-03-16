@@ -1127,7 +1127,7 @@ fg.Game =
         }, 
         checkGemType: function (check, gem, chain) {
             if (check && check.type == gem.type) {
-                if(chain.chained.indexOf(check) > 1) chain.checks = 0;
+                if(chain.chained.indexOf(check) > 2) chain.checks = 0;
                 if(check.checked) return;
                 check.checked = true;
                 chain.checks++;
