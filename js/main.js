@@ -896,6 +896,10 @@ fg.Game =
                 this.parseBoard();
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
+                if(this.levelComplete){
+                    fg.UI.update();
+                    fg.UI.draw();
+                }
             } else { 
                 // if (!this.screenShot) {
                 //     var img = new Image();
@@ -915,19 +919,33 @@ fg.Game =
             }
             fg.Timer.update();
         },
-        touchStart: function(touches){            
+        touchStart: function(touches){    
+            if (this.levelComplete) {
+                if (this.testOverlap(
+                    { x: fg.UI.mainForm.controls[0].realX, y: fg.UI.mainForm.controls[0].realY, width: fg.UI.mainForm.controls[0].width, height: fg.UI.mainForm.controls[0].height },
+                    { id: 'touch', x: touches[0].clientX, y: touches[0].clientY, width: 1, height: 1 })) {
+                    fg.Game.currentLevel.createEntities(true);
+                    fg.Game.levelComplete = false;
+                    fg.Game.selectedGem = null;
+                    this.chains = null;
+                    fg.UI.close(true);
+                }
+                return;
+            }
             if(!fg.Game.started) {
                 fg.Game.started = true; 
                 return;
             }     
-            var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
-            var col = Math.floor((touches[0].pageX+fg.Game.screenOffsetY)/fg.System.defaultSide);
+            var row = Math.floor((touches[0].pageY + fg.Game.screenOffsetY) / fg.System.defaultSide);
+            var col = Math.floor((touches[0].pageX + fg.Game.screenOffsetY) / fg.System.defaultSide);
             if(row >= fg.Game.currentLevel.entities.length || col >= fg.Game.currentLevel.entities[0].length) return;
             var entity = fg.Game.currentLevel.entities[row][col];            
             this.selectedGem = entity;
             if(this.selectedGem.curAnimation) this.selectedGem.curAnimation.play();
         },
-        touchEnd: function(touches){            
+        touchEnd: function(touches){      
+            if(this.levelComplete) return;   
+            if(!fg.Game.started) return;   
             var row = Math.floor((touches[0].pageY+fg.Game.screenOffsetY)/fg.System.defaultSide);
             var col = Math.floor((touches[0].pageX+fg.Game.screenOffsetY)/fg.System.defaultSide);
             if(!this.selectedGem || !this.selectedGem.isGem) return;
@@ -1049,7 +1067,7 @@ fg.Game =
                 this.mainFontSmall.draw(chain.id + ': ' + chain.count + (chain.count == chain.checks ? " $" : ""), 8, 390 + (index * 8));
                 if(chain.count != chain.checks) this.levelComplete = false;
             }
-            if(this.levelComplete) fg.Game.paused = true;
+            //if(this.levelComplete) fg.Game.paused = true;
         },
         findChainTypes: function(){            
             for (var k = 0, row; row = fg.Game.currentLevel.entities[k]; k++) {
@@ -1137,11 +1155,22 @@ fg.Font = function (path) {
                 this.charCodes.push(char.charCodeAt(0) - this.startChar);
             }
         },
-        draw: function (text, x, y) {
+        draw: function (text, x, y, hAlign, vAlign) {
             this._getCharCodes(text);
+            var valgn = 0;
+            var halgn = 0;
+            if(hAlign){
+                if(hAlign == 'center') halgn = -(this.fontWidth * text.length / 2);
+                if(hAlign == 'right') halgn = -(this.fontWidth * text.length);
+            }
+            if(vAlign){
+                if(vAlign == 'middle') valgn = -(this.fontHeight / 2);
+                if(vAlign == 'bottom') valgn = -(this.fontHeight);
+            }
             for (var i = 0; i < this.charCodes.length; i++) {
                 var code = this.charCodes[i];
-                fg.Render.draw(this.bgImage, code * this.fontWidth, 0, this.fontWidth, this.fontHeight, x + (i * (this.fontWidth)), y);
+                //fg.Render.draw(this.bgImage, code * this.fontWidth, 0, this.fontWidth, this.fontHeight, x + (i * (this.fontWidth)) + halgn, y + valgn);
+                fg.System.context.drawImage(this.bgImage, code * this.fontWidth, 0, this.fontWidth, this.fontHeight, x + (i * (this.fontWidth)) + halgn, y + valgn, this.fontWidth, this.fontHeight);
             }
         }
     }).init();
@@ -1150,12 +1179,13 @@ fg.UI = {
     closeAll: false,
     init: function () {
         this.mainForm = Object.assign(Object.create(this.control), this.container, this.form, {
-            id: "mainForm", active: true, animate: true, showBorder: true, visible: true, width: 76, height: 38, controls: [],
-            x: 275,
-            y: 400
+            id: "mainForm", active: true, animate: false, showBorder: true, 
+            visible: true, width: 76, height: 38, controls: [], fillColor: 'rgba(0,0,0,0)', borderColor: 'rgba(0,0,0,0)',
+            x: 175,//275
+            y: 400//400
         });
         var buttonList = Object.assign(Object.create(this.control), this.container, {
-            id: "buttonList", active: true, animate: false, visible: true, width: 100, height: 80, controls: [], x: 0, y: 0
+            id: "buttonList", active: true, animate: false, visible: true, width: 76, height: 38, controls: [], x: 0, y: 0
         });
         this.mainForm.addControl(buttonList);
         buttonList.addControl(Object.assign(Object.create(this.control), this.button, {
@@ -1339,11 +1369,15 @@ fg.UI = {
         text: "myButton",
         draw: function () {
             fg.UI.control.draw.call(this);
-            fg.System.context.textBaseline = "middle";
-            fg.System.context.textAlign = "center";
-            fg.System.context.font = "8px Arial";
-            fg.System.context.fillStyle = "white";
-            fg.System.context.fillText(this.text, this.realX + this.x + (this.width / 2), this.realY + this.y + (this.height / 2) + 1);
+            if (!this.useSprites) {
+                fg.System.context.textBaseline = "middle";
+                fg.System.context.textAlign = "center";
+                fg.System.context.font = "8px Arial";
+                fg.System.context.fillStyle = "white";
+                fg.System.context.fillText(this.text, this.realX + this.x + (this.width / 2), this.realY + this.y + (this.height / 2) + 1);
+            } else {
+                fg.Game.mainFontSmall.draw(this.text, this.realX + this.x + (this.width / 2), this.realY + this.y + (this.height / 2) + 1, 'center', 'middle');
+            }
         }
     },
     control: {
@@ -1380,17 +1414,18 @@ fg.UI = {
                 fg.System.context.fillStyle = this.fillColor;
                 fg.System.context.fillRect(startX + this.x + 1, startY + this.y + 1, this.width - 2, this.height - 2);
             } else {
-                var img = new Image();
-                img.src = this.spriteSheet;
-                var canvas = fg.$new("canvas");
-                img.onload = function () {
-                    //draw background image
-                    canvas.getContext('2d').drawImage(img, 0, 0);
-                };
-                if (!fg.Render.cached[this.type])
+                if (!fg.Render.cached[this.type]) {
+                    var img = new Image();
+                    img.src = this.spriteSheet;
+                    var canvas = fg.$new("canvas");
+                    img.onload = function () {
+                        //draw background image
+                        canvas.getContext('2d').drawImage(img, 0, 0);
+                    };
                     fg.Render.cache(this.type, canvas);
+                }
                 else
-                    fg.Render.draw(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.cacheWidth, this.cacheHeight, this.x, this.y);
+                    fg.System.context.drawImage(fg.Render.cached[this.type], this.cacheX, this.cacheY, this.width, this.height, startX + this.x, startY + this.y, this.width, this.height);
             }
         },
         parent: null,
@@ -1406,16 +1441,16 @@ fg.UI = {
         },
         click: function () { }
     },
-    close: function () {
+    close: function (closeAll) {
         var activeForms = this.mainForm.controls.filter(function (e) { return e.visible });
-        if (activeForms.length > 1) {
-            if (!fg.UI.closeAll) {
+        if (activeForms.length >= 1) {
+            if (!fg.UI.closeAll && !closeAll) {
                 activeForms[activeForms.length - 1].visible = false;
                 activeForms[activeForms.length - 1].curAnimation = 0;
                 delete fg.Input.actions["esc"];
                 return;
             } else {
-                while (this.mainForm.controls.filter(function (e) { return e.visible }).length > 1) {
+                while (this.mainForm.controls.filter(function (e) { return e.visible }).length >= 1) {
                     activeForms = this.mainForm.controls.filter(function (e) { return e.visible });
                     activeForms[activeForms.length - 1].visible = false;
                     activeForms[activeForms.length - 1].curAnimation = 0;
@@ -1465,7 +1500,7 @@ fg.Render = {
         this.cached[type].getContext('2d').drawImage(data, x, y);
     },
     preRenderCanvas: function () { return fg.$new("canvas"); },
-    draw: function (data, cacheX, cacheY, width, height, mapX, mapY) {
+    draw: function (data, cacheX, cacheY, width, height, mapX, mapY, abs) {
         fg.System.context.drawImage(data, cacheX, cacheY, width, height,
             Math.floor(mapX - fg.Game.screenOffsetX), Math.floor(mapY - fg.Game.screenOffsetY), width, height);
     },
