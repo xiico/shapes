@@ -1181,7 +1181,7 @@ fg.UI = {
         this.mainForm = Object.assign(Object.create(this.control), this.container, this.form, {
             id: "mainForm", active: true, animate: false, showBorder: true, 
             visible: true, width: 76, height: 38, controls: [], fillColor: 'rgba(0,0,0,0)', borderColor: 'rgba(0,0,0,0)',
-            x: 175,//275
+            x: 275,//275
             y: 400//400
         });
         var buttonList = Object.assign(Object.create(this.control), this.container, {
