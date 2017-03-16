@@ -1076,7 +1076,7 @@ fg.Game =
                     if(!element || !element.isGem) continue;
                     var chainType = this.chains.find(function (e) { return e.id == element.type })
                     if (!chainType) 
-                        this.chains.push({ id: element.type, elements: [element], count: 1, chained:[]});
+                        this.chains.push({ id: element.type, elements: [element], count: 1, chained:[], complete: false});
                     else
                     {
                         chainType.elements.push(element);
@@ -1088,7 +1088,7 @@ fg.Game =
         checkSides: function (gem, chain) {
             var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]);
             chain.elements.splice(chain.elements.indexOf(gem),1)
-            var elements = chain.elements.length > 0 ? chain.elements : chain.chained;
+            var elements = chain.elements.concat(chain.chained);
             var checks = 0;
             for (var i = 0; i < 4; i++) {
                 switch (i) {
@@ -1097,28 +1097,33 @@ fg.Game =
                         var check = elements.find(function (e) { return e.id == (posY) + '-' + (posX - 1); });
                         if(check) {checks++;
                         this.checkGemType(check, gem, chain);}
+                        if(chain.complete) return;
                         break;
                     case 1:
                         if (posY - 1 < 0) break;
                         var check = elements.find(function (e) { return e.id == (posY - 1) + '-' + (posX); });
                         if(check) {checks++;
                         this.checkGemType(check, gem, chain);}
+                        if(chain.complete) return;
                         break;
                     case 2:
                         if (posX + 1 >= fg.Game.currentLevel.entities[0].length) break;
                         var check = elements.find(function (e) { return e.id == (posY) + '-' + (posX + 1); });
                         if(check) {checks++;
                         this.checkGemType(check, gem, chain);}
+                        if(chain.complete) return;
                         break;
                     default:
                         if (posY + 1 >= fg.Game.currentLevel.entities.length) break;
                         var check = elements.find(function (e) { return e.id == (posY + 1) + '-' + (posX); });
                         if(check) {checks++;
                         this.checkGemType(check, gem, chain);}
+                        if(chain.complete) return;
                         break;
                 }
             }
             if(checks >= 3) chain.checks = 0;
+            if(chain.checks == chain.count) chain.complete = true;
         }, 
         checkGemType: function (check, gem, chain) {
             if (check && check.type == gem.type) {
@@ -1126,6 +1131,7 @@ fg.Game =
                 if(check.checked) return;
                 check.checked = true;
                 chain.checks++;
+                if(chain.chained.length == 0) chain.chained.push(gem);
                 chain.chained.unshift(check);
                 if (!gem.checked) gem.checked = true;
                 this.checkSides(check, chain);
