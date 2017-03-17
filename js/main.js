@@ -1136,7 +1136,7 @@ fg.Game =
             if (checks >= 3) chain.checks = 0;
             if (checks > 1) chain.chained.unshift(chain.chained.splice(chain.chained.indexOf(gem), 1)[0]);
             if (check && check.type == gem.type) {
-                if (chain.chained.indexOf(check) > 1) chain.checks = 0;
+                if (Math.abs(chain.chained.indexOf(gem) - chain.chained.indexOf(check)) > 1) chain.checks = 0;
                 if (check.checked) return;
                 check.checked = true;
                 chain.checks++;
@@ -1145,6 +1145,33 @@ fg.Game =
                 if (!gem.checked) gem.checked = true;
                 this.checkSides(check, chain);
             }
+        },
+        contactPoints: function(){
+            var cPoints = 0, elements = chain.elements.concat(chain.chained);    
+            for (var i = 0; i < 4; i++) {
+                switch (i) {
+                    case 0:
+                        if (posX - 1 < 0) break;
+                        var check = elements.find(function (e) { return e.id == (posY) + '-' + (posX - 1); });
+                        if (check) cPoints++;
+                        break;
+                    case 1:
+                        if (posY - 1 < 0) break;
+                        var check = elements.find(function (e) { return e.id == (posY - 1) + '-' + (posX); });
+                        if (check) cPoints++;
+                        break;
+                    case 2:
+                        if (posX + 1 >= fg.Game.currentLevel.entities[0].length) break;
+                        var check = elements.find(function (e) { return e.id == (posY) + '-' + (posX + 1); });
+                        if (check) cPoints++;
+                        break;
+                    default:
+                        if (posY + 1 >= fg.Game.currentLevel.entities.length) break;
+                        if (check) cPoints++;
+                        break;
+                }
+            }    
+            return cPoints;
         }
     }
 fg.Font = function (path) {
