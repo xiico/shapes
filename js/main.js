@@ -468,7 +468,8 @@ fg.protoEntity = {
     addAnimation: function (id, x, y, tileSet, duration, loop) {
         this.animations[id] = fg.Animation(id, x, y, tileSet, duration, loop);
     },
-    update: function () { }
+    update: function () { },
+    toString: function(){ return this.id;}
 }
 
 fg.Entity = function (id, type, x, y, cx, cy, index) {
@@ -1050,14 +1051,15 @@ fg.Game =
                 //(function(){findByType(TYPE.BLUEGEM)})();
                 this.chains.forEach(function (chain) {
                     chain.checks = 0;
-                    chain.elements.forEach(function (element) {            
-                        chain.checks = 1;
-                        if(chain.elements.length == 1) {                            
+                    while (chain.elements.length > 0) {
+                        var element = chain.elements[0];
+                        if(chain.count == 1) {         
+                            chain.checks = 1;                   
                             chain.elements.splice(chain.elements.indexOf(element),1);
                             return element.checked = true;
                         }
                         fg.Game.checkSides(element, chain);
-                    }, this);
+                    }
                 }, this);
             }
             if(!this.chains) return;
@@ -1127,8 +1129,9 @@ fg.Game =
         checkGemType: function (check, gem, chain) {
             if (check && check.type == gem.type) {
                 if(!chain.chained.length) chain.entryPoint = gem.id;
-                if (check.checked && (gem.id != chain.entryPoint || chain.checks >= chain.count)) return;
+                if (check.checked && (gem.id != chain.entryPoint || chain.checks >= chain.count || (gem.id == chain.entryPoint && chain.checks < chain.count))) return;
                 check.checked = true;
+                if(chain.checks == 0) chain.checks = 1;
                 chain.checks++;
                 if (chain.chained.length == 0) chain.chained.push(gem);
                 chain.chained.push(check);
