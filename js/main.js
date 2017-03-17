@@ -1062,6 +1062,7 @@ fg.Game =
             }
             if(!this.chains) return;
             this.levelComplete = true;
+            this.chains.sort(function(a, b){return a.id-b.id});
             for (var index = 0; index < this.chains.length; index++) {
                 var chain = this.chains[index];
                 this.mainFontSmall.draw(chain.id + ': ' + chain.count + (chain.count == chain.checks ? " $" : ""), 8, 390 + (index * 8));
