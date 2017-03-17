@@ -1126,8 +1126,8 @@ fg.Game =
         }, 
         checkGemType: function (check, gem, chain) {
             if (check && check.type == gem.type) {
-                if(!chain.chained.length) gem.entryPoint = true;
-                if (check.checked && (!gem.entryPoint || chain.checks >= chain.count)) return;
+                if(!chain.chained.length) chain.entryPoint = gem.id;
+                if (check.checked && (gem.id != chain.entryPoint || chain.checks >= chain.count)) return;
                 check.checked = true;
                 chain.checks++;
                 if (chain.chained.length == 0) chain.chained.push(gem);
