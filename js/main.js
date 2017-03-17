@@ -1122,7 +1122,7 @@ fg.Game =
                         break;
                 }
             }            
-            if (chain.checks == chain.count) chain.complete = true;
+            if (chain.checks >= chain.count) chain.complete = true;
         }, 
         checkGemType: function (check, gem, chain) {
             if (check && check.type == gem.type) {
@@ -1670,7 +1670,7 @@ fg.Input = {
         b = b.toString(16); // make it a hex digit
         var color = "#" + r + g + b;
         //console.log("color for touch with identifier " + touch.identifier + " = " + color);
-        console.log(touch.identifier);
+        //console.log(touch.identifier);
         return color;
     },
     initKeyboard: function () {
