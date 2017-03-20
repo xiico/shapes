@@ -4,9 +4,9 @@ var levelOne = {tiles:
 "MMMMMMMM\n"+
 "MMMMMMMM\n"+
 "MMMMMMMM\n"+
-"MMMMMMMM\n"+
-"MMMMMMMM\n"+
-"GRYPBWOC",
+"GGGMMMMM\n"+
+"GWGRRMMM\n"+
+"GGGRRMMM",
     customProperties: []}
 /*
 MMMMMMMM
@@ -36,7 +36,7 @@ var levelStages = [
 "MM    MM\n"+
 "MMMMMMMM\n"+
 "MMMMMMMM",
-    customProperties: [], targetScore: 5000, score: 0},
+    customProperties: [], targetScore: 2000, score: 0},
     {id:'level2', tiles:
 "MMMMMMMM\n"+
 "MMM  MMM\n"+
@@ -46,7 +46,7 @@ var levelStages = [
 "MM    MM\n"+
 "MMM  MMM\n"+
 "MMMMMMMM",
-    customProperties: [], targetScore: 10000, score: 0},
+    customProperties: [], targetScore: 4000, score: 0},
     {id:'level3', tiles:
 "MMMMMMMM\n"+
 "MMM  MMM\n"+
@@ -56,7 +56,7 @@ var levelStages = [
 "M      M\n"+
 "MMM  MMM\n"+
 "MMMMMMMM",
-    customProperties: [], targetScore: 10000, score: 0},
+    customProperties: [], targetScore: 6000, score: 0},
     {id:'level4', tiles:
 "        \n"+
 " MM  MM \n"+
@@ -66,7 +66,7 @@ var levelStages = [
 " M    M \n"+
 " MM  MM \n"+
 "        ",
-    customProperties: [], targetScore: 10000, score: 0},
+    customProperties: [], targetScore: 8000, score: 0},
     {id:'level5', tiles:
 "M      M\n"+
 "MMM  MMM\n"+

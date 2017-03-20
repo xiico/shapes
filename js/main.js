@@ -944,10 +944,12 @@ fg.Game =
             if (!this.chains || this.chains.length == 0) return
             for (var index = 0; index < this.chains.length; index++) {
                 var chain = this.chains[index];
+                var iScore = 0;
                 for (var i = 0; i < chain.chained.length; i++) {
                     var item = chain.chained[i];
-                    score += (((i + 1) * 10) + i / 10);
+                    iScore = ((i + 1) + i / 10);
                 }
+                score += iScore * 10 * (chain.loop ? 2 : 1);
             }
             return score;
         },
@@ -1099,7 +1101,9 @@ fg.Game =
                         }
                         fg.Game.checkSides(element, chain);
                     }
+                    if(chain.complete && this.contactPoints(chain.chained[0], chain).indexOf(chain.chained[chain.count - 1]) >= 0) chain.loop = true;                        
                 }, this);
+                this.currentLevel.curStage.score = fg.Game.calculateScore();
             }
             if (!this.chains) return;
             this.levelComplete = true;
@@ -1134,7 +1138,7 @@ fg.Game =
         checkSides: function (gem, chain) {
             var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]);
             chain.elements.splice(chain.elements.indexOf(gem), 1);
-            var elements = chain.elements.concat(chain.chained), cPoints = this.contactPoints(gem, chain);
+            var elements = chain.elements.concat(chain.chained), cPoints = this.contactPoints(gem, chain).length;
             if(cPoints > 2) chain.checks = 0;
             for (var i = 0; i < 4; i++) {
                 switch (i) {
@@ -1180,28 +1184,28 @@ fg.Game =
             }
         },
         contactPoints: function(gem, chain){
-            var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]), cPoints = 0, elements = chain.elements.concat(chain.chained);    
+            var posX = parseInt(gem.id.split('-')[1]), posY = parseInt(gem.id.split('-')[0]), cPoints = [], elements = chain.elements.concat(chain.chained);    
             for (var i = 0; i < 4; i++) {
                 switch (i) {
                     case 0:
                         if (posX - 1 < 0) break;
                         var check = elements.find(function (e) { return e.id == (posY) + '-' + (posX - 1); });
-                        if (check) cPoints++;
+                        if (check) cPoints.push(check);
                         break;
                     case 1:
                         if (posY - 1 < 0) break;
                         var check = elements.find(function (e) { return e.id == (posY - 1) + '-' + (posX); });
-                        if (check) cPoints++;
+                        if (check) cPoints.push(check);
                         break;
                     case 2:
                         if (posX + 1 >= fg.Game.currentLevel.entities[0].length) break;
                         var check = elements.find(function (e) { return e.id == (posY) + '-' + (posX + 1); });
-                        if (check) cPoints++;
+                        if (check) cPoints.push(check);
                         break;
                     default:
                         if (posY + 1 >= fg.Game.currentLevel.entities.length) break;
                         var check = elements.find(function (e) { return e.id == (posY + 1) + '-' + (posX); });
-                        if (check) cPoints++;
+                        if (check) cPoints.push(check);
                         break;
                 }
             }    
