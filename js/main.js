@@ -935,7 +935,8 @@ fg.Game =
         },
         nextStage: function () {
             if(!fg.Game.currentLevel.curStage) fg.Game.currentLevel.curStage = -1;
-            fg.Game.currentLevel.createEntities(true, ++fg.Game.currentLevel.curStage);
+            //fg.Game.currentLevel.createEntities(true, ++fg.Game.currentLevel.curStage);
+            fg.Game.currentLevel.createEntities(true, 0);
             fg.Game.levelComplete = false;
             fg.Game.selectedGem = null;
             this.chains = null;
