@@ -187,6 +187,9 @@ fg.protoLevel = {
     rowsCount: 0,
     colsCount: 0,
     curStage: null,
+    setCurStage: function(index){
+        this.curStage = this.stages[index];
+    },
     loadSettings: function () {
         if (window[this.name].levelSwiches)
             this.levelSwiches = window[this.name].levelSwiches;
@@ -197,9 +200,9 @@ fg.protoLevel = {
         if (window[this.name].warpDecks)
             this.warpDecks = window[this.name].warpDecks;
     },
-    createEntities: function (init, stageIndex) {
+    createEntities: function (init, stage) {        
         fg.Render.cached[TYPE.MARIO] = null;
-        var rows = (stageIndex === undefined ? window[this.name] : window['levelStages'][stageIndex]).tiles.split('\n');
+        var rows = (stage === undefined ? window[this.name] : (typeof stage == 'number' ? this.stages[stage] : stage)).tiles.split('\n');
         this.rowsCount = rows.length;
         this.colsCount = rows[0].length;
         for (var i = 0, row; row = rows[i]; i++) {
@@ -306,6 +309,8 @@ fg.protoLevel = {
             }
             this.marioBuffer.pop();
         }
+        this.stages = window['levelStages'];
+        if (!this.curStage) this.setCurStage(0);
     },
     init: function (name) {
         this.name = name;
@@ -910,6 +915,7 @@ fg.Game =
                 this.parseBoard();
                 fg.Camera.update();
                 this.saveScreenAnimation = 0;
+                this.updateStageProgress();
                 if(this.levelComplete){
                     fg.UI.update();
                     fg.UI.draw();
@@ -933,14 +939,33 @@ fg.Game =
             }
             fg.Timer.update();
         },
-        nextStage: function () {
-            if(!fg.Game.currentLevel.curStage) fg.Game.currentLevel.curStage = -1;
+        calculateScore: function () {
+            var score = 0;
+            if (this.chains.length == 0) return
+            for (var index = 0; index < this.chains.length; index++) {
+                var chain = this.chains[index];
+                for (var i = 0; i < chain.chained.length; i++) {
+                    var item = chain.chained[i];
+                    score += (((i + 1) * 10) + i / 10);
+                }
+            }
+            return score;
+        },
+        next: function () {
+            if (!this.currentLevel.curStage) fg.Game.currentLevel.setCurStage(0);
+            this.currentLevel.curStage.score += fg.Game.calculateScore();
+            if (this.currentLevel.curStage.score >= this.currentLevel.curStage.targetScore) this.currentLevel.setCurStage(this.currentLevel.stages.indexOf(this.currentLevel.curStage) + 1);
+
             //fg.Game.currentLevel.createEntities(true, ++fg.Game.currentLevel.curStage);
-            fg.Game.currentLevel.createEntities(true, 0);
+            fg.Game.currentLevel.createEntities(true, fg.Game.currentLevel.curStage);
             fg.Game.levelComplete = false;
             fg.Game.selectedGem = null;
             this.chains = null;
             fg.UI.close(true);
+        },
+        updateStageProgress: function(){
+            if(!this.currentLevel.curStage) return;
+            fg.Game.drawLoading(10, fg.System.canvas.height - 122, fg.System.canvas.width - 20, 10, (this.currentLevel.curStage.score + this.calculateScore()) / this.currentLevel.curStage.targetScore);
         },
         touchStart: function(touches){    
             if (this.levelComplete) {
@@ -1067,26 +1092,26 @@ fg.Game =
                     chain.checks = 0;
                     while (chain.elements.length > 0) {
                         var element = chain.elements[0];
-                        if(chain.count == 1) {         
-                            chain.checks = 1;                   
-                            chain.elements.splice(chain.elements.indexOf(element),1);
+                        if (chain.count == 1) {
+                            chain.checks = 1;
+                            chain.chained.push(chain.elements.splice(chain.elements.indexOf(element), 1));
                             return element.checked = true;
                         }
                         fg.Game.checkSides(element, chain);
                     }
                 }, this);
             }
-            if(!this.chains) return;
+            if (!this.chains) return;
             this.levelComplete = true;
-            this.chains.sort(function(a, b){
-                if(a.id < b.id) return -1;
-                if(a.id > b.id) return 1;
+            this.chains.sort(function (a, b) {
+                if (a.id < b.id) return -1;
+                if (a.id > b.id) return 1;
             });
             for (var index = 0; index < this.chains.length; index++) {
                 var chain = this.chains[index];
                 this.drawChainIcon(chain.id, 8, 390 + (index * 8))
                 this.mainFontSmall.draw(': ' + chain.count + (chain.count == chain.checks ? " $" : ""), 16, 390 + (index * 8));
-                if(chain.count != chain.checks) this.levelComplete = false;
+                if (chain.count != chain.checks) this.levelComplete = false;
             }
             //if(this.levelComplete) fg.Game.paused = true;
         },
@@ -1246,7 +1271,7 @@ fg.UI = {
         buttonList.addControl(Object.assign(Object.create(this.control), this.button, {
             id: "next", text: "Next", highlighted: true, controls: [],
             click: function () {
-                fg.Game.nextStage();
+                fg.Game.next();
                 return true;
             }
         }));

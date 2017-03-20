@@ -36,8 +36,8 @@ var levelStages = [
 "MM    MM\n"+
 "MMMMMMMM\n"+
 "MMMMMMMM*",
-    customProperties: []},
-    {id:'level1', tiles:
+    customProperties: [], targetScore: 500, score: 0},
+    {id:'level2', tiles:
 "MMMMMMMM\n"+
 "MMM  MMM\n"+
 "MM    MM\n"+
@@ -46,5 +46,5 @@ var levelStages = [
 "MM    MM\n"+
 "MMM  MMM\n"+
 "MMMMMMMM*",
-    customProperties: []}
+    customProperties: [], targetScore: 10000, score: 0}
 ]
