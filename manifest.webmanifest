@@ -1,0 +1,16 @@
+{
+  "name": "Shapes",
+  "short_name": "shapes",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "Slide tiles to form shapes!",
+  "icons": [{
+    "src": "resources/ico.png",
+    "sizes": "32x32",
+    "type": "image/png"
+  }],
+  "related_applications": [{
+    "platform": "web"
+  }]
+}

@@ -127,43 +127,6 @@ fg.System =
             this.platform.iOS = this.platform.iPhone || this.platform.iPad;
             this.platform.mobile = this.platform.iOS || this.platform.android;
             //if (this.platform.mobile) this.renderMobileInput();
-        },
-        renderMobileInput: function () {
-            var auxCanvas = document.createElement('canvas');
-            auxCanvas.width = 64;
-            auxCanvas.height = 64;
-            var auxCanvasCtx = auxCanvas.getContext('2d');
-
-            var imgLeft = document.getElementById("btnMoveLeft");
-            auxCanvasCtx.beginPath();
-            auxCanvasCtx.fillStyle = "#aaaaaa";
-            auxCanvasCtx.fillRect(0, 0, auxCanvas.width, auxCanvas.height);
-            auxCanvasCtx.fillStyle = "#000000";
-            auxCanvasCtx.moveTo(48, 16);
-            auxCanvasCtx.lineTo(48, 48);
-            auxCanvasCtx.lineTo(16, 32);
-            auxCanvasCtx.fill();
-            imgLeft.src = auxCanvas.toDataURL("image/png");
-
-            var imgRight = document.getElementById("btnMoveRight");
-            auxCanvasCtx.beginPath();
-            auxCanvasCtx.fillStyle = "#aaaaaa";
-            auxCanvasCtx.fillRect(0, 0, auxCanvas.width, auxCanvas.height);
-            auxCanvasCtx.fillStyle = "#000000";
-            auxCanvasCtx.moveTo(16, 16);
-            auxCanvasCtx.lineTo(16, 48);
-            auxCanvasCtx.lineTo(48, 32);
-            auxCanvasCtx.fill();
-            imgRight.src = auxCanvas.toDataURL("image/png");
-
-            var imgJump = document.getElementById("btnJump");
-            auxCanvasCtx.beginPath();
-            auxCanvasCtx.fillStyle = "#aaaaaa";
-            auxCanvasCtx.fillRect(0, 0, auxCanvas.width, auxCanvas.height);
-            auxCanvasCtx.fillStyle = "#000000";
-            auxCanvasCtx.arc(auxCanvas.width / 2, auxCanvas.height / 2, 16, 0, 2 * Math.PI);
-            auxCanvasCtx.fill();
-            imgJump.src = auxCanvas.toDataURL("image/png");
         }
     }
 
