@@ -941,7 +941,7 @@ fg.Game =
         },
         calculateScore: function () {
             var score = 0;
-            if (this.chains.length == 0) return
+            if (!this.chains || this.chains.length == 0) return
             for (var index = 0; index < this.chains.length; index++) {
                 var chain = this.chains[index];
                 for (var i = 0; i < chain.chained.length; i++) {
