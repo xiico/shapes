@@ -965,7 +965,7 @@ fg.Game =
         },
         updateStageProgress: function(){
             if(!this.currentLevel.curStage) return;
-            fg.Game.drawLoading(10, fg.System.canvas.height - 122, fg.System.canvas.width - 20, 10, (this.currentLevel.curStage.score + this.calculateScore()) / this.currentLevel.curStage.targetScore);
+            fg.Game.drawLoading(10, fg.System.canvas.height - 122, fg.System.canvas.width - 20, 10, this.currentLevel.curStage.score / this.currentLevel.curStage.targetScore);
         },
         touchStart: function(touches){    
             if (this.levelComplete) {
