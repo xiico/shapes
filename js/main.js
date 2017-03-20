@@ -1086,7 +1086,7 @@ fg.Game =
             fg.System.context.fillText(text, x, y);
         },
         parseBoard: function () {
-            if (!this.chains && (!fg.Game.selectedGem || (fg.Game.selectedGem && !fg.Game.selectedGem.moveTo.length))) {
+            if (!this.chains && (!fg.Game.selectedGem || (fg.Game.selectedGem && fg.Game.selectedGem.moveTo && !fg.Game.selectedGem.moveTo.length))) {
                 this.chains = [];
                 this.findChainTypes();
                 //(function(){findByType(TYPE.BLUEGEM)})();
@@ -1103,7 +1103,7 @@ fg.Game =
                     }
                     if(chain.complete && this.contactPoints(chain.chained[0], chain).indexOf(chain.chained[chain.count - 1]) >= 0) chain.loop = true;                        
                 }, this);
-                this.currentLevel.curStage.score = fg.Game.calculateScore();
+                if(!this.currentLevel.curStage.score) this.currentLevel.curStage.score = fg.Game.calculateScore();
             }
             if (!this.chains) return;
             this.levelComplete = true;

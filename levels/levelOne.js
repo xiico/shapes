@@ -68,13 +68,13 @@ var levelStages = [
 "        ",
     customProperties: [], targetScore: 8000, score: 0},
     {id:'level5', tiles:
-"M      M\n"+
-"MMM  MMM\n"+
 "        \n"+
 " MM  MM \n"+
+"        \n"+
+"MMM  MMM\n"+
 " M    M \n"+
-"MM    MM\n"+
-"  M  M  \n"+
+"        \n"+
+"M M  M M\n"+
 "        ",
     customProperties: [], targetScore: 10000, score: 0}
 ]
