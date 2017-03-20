@@ -35,8 +35,8 @@ var levelStages = [
 "MM    MM\n"+
 "MM    MM\n"+
 "MMMMMMMM\n"+
-"MMMMMMMM*",
-    customProperties: [], targetScore: 500, score: 0},
+"MMMMMMMM",
+    customProperties: [], targetScore: 5000, score: 0},
     {id:'level2', tiles:
 "MMMMMMMM\n"+
 "MMM  MMM\n"+
@@ -45,6 +45,36 @@ var levelStages = [
 "M      M\n"+
 "MM    MM\n"+
 "MMM  MMM\n"+
-"MMMMMMMM*",
+"MMMMMMMM",
+    customProperties: [], targetScore: 10000, score: 0},
+    {id:'level3', tiles:
+"MMMMMMMM\n"+
+"MMM  MMM\n"+
+"M      M\n"+
+"MM    MM\n"+
+"MM    MM\n"+
+"M      M\n"+
+"MMM  MMM\n"+
+"MMMMMMMM",
+    customProperties: [], targetScore: 10000, score: 0},
+    {id:'level4', tiles:
+"        \n"+
+" MM  MM \n"+
+" M    M \n"+
+"        \n"+
+"        \n"+
+" M    M \n"+
+" MM  MM \n"+
+"        ",
+    customProperties: [], targetScore: 10000, score: 0},
+    {id:'level5', tiles:
+"M      M\n"+
+"MMM  MMM\n"+
+"        \n"+
+" MM  MM \n"+
+" M    M \n"+
+"MM    MM\n"+
+"  M  M  \n"+
+"        ",
     customProperties: [], targetScore: 10000, score: 0}
 ]
