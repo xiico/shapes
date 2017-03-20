@@ -186,6 +186,7 @@ fg.protoLevel = {
     bgImage: null,
     rowsCount: 0,
     colsCount: 0,
+    curStage: null,
     loadSettings: function () {
         if (window[this.name].levelSwiches)
             this.levelSwiches = window[this.name].levelSwiches;
@@ -196,8 +197,9 @@ fg.protoLevel = {
         if (window[this.name].warpDecks)
             this.warpDecks = window[this.name].warpDecks;
     },
-    createEntities: function (init) {
-        var rows = window[this.name].tiles.split('\n');
+    createEntities: function (init, stageIndex) {
+        fg.Render.cached[TYPE.MARIO] = null;
+        var rows = (stageIndex === undefined ? window[this.name] : window['levelStages'][stageIndex]).tiles.split('\n');
         this.rowsCount = rows.length;
         this.colsCount = rows[0].length;
         for (var i = 0, row; row = rows[i]; i++) {
@@ -274,6 +276,10 @@ fg.protoLevel = {
         }
         if (features) Object.assign(entity, features);
         return entity;
+    },
+    getStage: function (stg) {
+        if (typeof stg == "string") return window[this.name].find(function (e) { return e.id == stg; })
+        if (typeof stg == "number") return window[this.name][stg];
     },
     load: function () {
         fg.loadScript('levels/', this.name,
@@ -812,6 +818,50 @@ fg.Game =
                 this.mainFontSmall.draw("Loading...", 150, 180);
             }
         },
+        drawChainIcon: function (type, x, y) {
+            if (!fg.Render.cached['chainIcon']) {
+                var img = new Image();
+                img.src = 'resources/chainicons.png';
+                var canvas = fg.$new("canvas");
+                canvas.width = 64;
+                canvas.height = 8;
+                this.spriteSheets.push(img);
+                img.onload = function () {
+                    //draw background image
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                };
+                fg.Render.cache('chainIcon', canvas);
+            } else {
+                var cacheX = 0;
+                switch (type) {
+                    case 'G':
+                        cacheX = 8*0;//4
+                        break;
+                    case 'R':
+                        cacheX = 8*1;//9
+                        break;
+                    case 'Y':
+                        cacheX = 8*2;;//13
+                        break;
+                    case 'P':
+                        cacheX = 8*3;//9
+                        break;
+                    case 'B':
+                        cacheX = 8*4;//11
+                        break;
+                    case 'W':
+                        cacheX = 8*5;//13
+                        break;
+                    case 'O':
+                        cacheX = 8*6;//5
+                        break;
+                    case 'C':
+                        cacheX = 8*7;//5
+                        break;
+                }
+                fg.System.context.drawImage(fg.Render.cached['chainIcon'], cacheX, 0, 8, 8, x, y, 8, 8);
+            }
+        },
         saveState: function () {
             var curSaveState = localStorage.fallingSaveState ? JSON.parse(localStorage.fallingSaveState) : null;
             var saveStations = curSaveState && curSaveState.saveStations ? curSaveState.saveStations : [];
@@ -883,17 +933,17 @@ fg.Game =
             }
             fg.Timer.update();
         },
+        nextStage: function () {
+            if(!fg.Game.currentLevel.curStage) fg.Game.currentLevel.curStage = -1;
+            fg.Game.currentLevel.createEntities(true, ++fg.Game.currentLevel.curStage);
+            fg.Game.levelComplete = false;
+            fg.Game.selectedGem = null;
+            this.chains = null;
+            fg.UI.close(true);
+        },
         touchStart: function(touches){    
             if (this.levelComplete) {
-                if (this.testOverlap(
-                    { x: fg.UI.mainForm.controls[0].realX, y: fg.UI.mainForm.controls[0].realY, width: fg.UI.mainForm.controls[0].width, height: fg.UI.mainForm.controls[0].height },
-                    { id: 'touch', x: touches[0].clientX, y: touches[0].clientY, width: 1, height: 1 })) {
-                    fg.Game.currentLevel.createEntities(true);
-                    fg.Game.levelComplete = false;
-                    fg.Game.selectedGem = null;
-                    this.chains = null;
-                    fg.UI.close(true);
-                }
+                fg.UI.checkUITouch(touches);
                 return;
             }
             if(!fg.Game.started) {
@@ -1033,7 +1083,8 @@ fg.Game =
             });
             for (var index = 0; index < this.chains.length; index++) {
                 var chain = this.chains[index];
-                this.mainFontSmall.draw(chain.id + ': ' + chain.count + (chain.count == chain.checks ? " $" : ""), 8, 390 + (index * 8));
+                this.drawChainIcon(chain.id, 8, 390 + (index * 8))
+                this.mainFontSmall.draw(': ' + chain.count + (chain.count == chain.checks ? " $" : ""), 16, 390 + (index * 8));
                 if(chain.count != chain.checks) this.levelComplete = false;
             }
             //if(this.levelComplete) fg.Game.paused = true;
@@ -1194,7 +1245,7 @@ fg.UI = {
         buttonList.addControl(Object.assign(Object.create(this.control), this.button, {
             id: "next", text: "Next", highlighted: true, controls: [],
             click: function () {
-                fg.Game.Next();
+                fg.Game.nextStage();
                 return true;
             }
         }));
@@ -1478,6 +1529,16 @@ fg.UI = {
             if (fg.Input.actions["right"] || fg.Input.actions["left"]) this.mainForm.changeHighlighted();
             if (fg.Input.actions["enter"] || fg.Input.actions["up"]) {
                 if ((this.activeForm().getHighlightedControl() || { click: function () { } }).click()) this.close();
+            }
+        }
+    },
+    checkUITouch: function (touches) {
+        for (var index = 0; index < fg.UI.mainForm.controls[0].controls.length; index++) {
+            var ctrl = fg.UI.mainForm.controls[0].controls[index];
+            if (fg.Game.testOverlap(
+                { x: ctrl.realX, y: ctrl.realY, width: ctrl.width, height: ctrl.height },
+                { id: 'touch', x: touches[0].clientX, y: touches[0].clientY, width: 1, height: 1 })) {
+                    ctrl.click();
             }
         }
     }
