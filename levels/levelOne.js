@@ -71,7 +71,7 @@ var levelStages = [
 "        \n"+
 " MM  MM \n"+
 "        \n"+
-"M M  M M\n"+
+"MMM  MMM\n"+
 " M    M \n"+
 "        \n"+
 "M M  M M\n"+
