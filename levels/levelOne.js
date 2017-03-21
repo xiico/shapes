@@ -48,15 +48,15 @@ var levelStages = [
 "MMMMMMMM",
     customProperties: [], targetScore: 4000, score: 0},
     {id:'level3', tiles:
-"MMMMMMMM\n"+
+"MMM  MMM\n"+
 "MMM  MMM\n"+
 "M      M\n"+
 "MM    MM\n"+
 "MM    MM\n"+
 "M      M\n"+
 "MMM  MMM\n"+
-"MMMMMMMM",
-    customProperties: [], targetScore: 6000, score: 0},
+"MMM  MMM",
+    customProperties: [], targetScore: 4000, score: 0},
     {id:'level4', tiles:
 "        \n"+
 " MM  MM \n"+
@@ -66,12 +66,12 @@ var levelStages = [
 " M    M \n"+
 " MM  MM \n"+
 "        ",
-    customProperties: [], targetScore: 8000, score: 0},
+    customProperties: [], targetScore: 6000, score: 0},
     {id:'level5', tiles:
 "        \n"+
 " MM  MM \n"+
 "        \n"+
-"MMM  MMM\n"+
+"M M  M M\n"+
 " M    M \n"+
 "        \n"+
 "M M  M M\n"+
