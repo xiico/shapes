@@ -289,24 +289,16 @@ fg.protoLevel = {
             function (self) { self.loadSettings(); self.createEntities(true); }, this);
     },
     loadLevelCompleted: function () {
-        if(this.purgeLevel) window[this.name] = null;
+        if (this.purgeLevel) window[this.name] = null;
         this.loaded = true;
         this.height = this.entities.length * fg.System.defaultSide;
         this.width = this.entities[0].length * fg.System.defaultSide;
         while (this.marioBuffer.length > 0) {
             this.marioBuffer[this.marioBuffer.length - 1].setSubTiles();
-            if (this.marioBuffer[this.marioBuffer.length - 1].tileSet == "00010203" || this.marioBuffer[this.marioBuffer.length - 1].tileSet == "30313233") {
-                if (this.marioBuffer[this.marioBuffer.length - 1].tileSet == "00010203") {
-                    fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] = 0;
-                    this.marioBuffer[this.marioBuffer.length - 1].cacheX = fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet];
-                } else {
-                    fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] = fg.System.defaultSide * 3;
-                    this.marioBuffer[this.marioBuffer.length - 1].cacheX = fg.System.defaultSide * 3;
-                }
-            } else {
-                if (!fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet]) fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] = (5 + Object.keys(fg.Render.marioCache).length) * fg.System.defaultSide;
-                this.marioBuffer[this.marioBuffer.length - 1].cacheX = fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet];
-            }
+            if (fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] == null) fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] = Object.keys(fg.Render.marioCache).length * fg.System.defaultSide;
+            //this.marioBuffer[this.marioBuffer.length - 1].cacheX = fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet];
+            this.marioBuffer[this.marioBuffer.length - 1].cacheX = fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] % (fg.System.defaultSide * 10);
+            this.marioBuffer[this.marioBuffer.length - 1].cacheY = Math.floor(fg.Render.marioCache[this.marioBuffer[this.marioBuffer.length - 1].tileSet] / (fg.System.defaultSide * 10)) * fg.System.defaultSide;
             this.marioBuffer.pop();
         }
         this.stages = window['levelStages'];
@@ -631,21 +623,21 @@ fg.Mario = function (id, type, x, y, cx, cy, index) {
             tileSet: "",
             procedural: false,
             imagePath:'resources/mario_tiles_46.png',
+            marioSeed: null,
             cachePosition: [{ x: (fg.System.defaultSide / 2), y: 0 }, { x: (fg.System.defaultSide / 2), y: (fg.System.defaultSide / 2) }, { x: 0, y: (fg.System.defaultSide / 2) }, { x: 0, y: 0 }],
             drawTile: function (c, ctx) {
-                c.width = this.width * (5 + Object.keys(fg.Render.marioCache).length);
-                c.height = this.height;
-                    var tileImage = new Image();
-                    var mario = this;
-                    tileImage.onload = function (e) {
-                        //draw background image
-                        ctx.drawImage(tileImage, 0, 0);
-                        for (var i = 0, key; key = Object.keys(fg.Render.marioCache)[i]; i++) {
-                            mario.renderSubTile(ctx, key);
-                        }
-                    };
-                    tileImage.src = this.imagePath;
-                    fg.Game.spriteSheets.push(tileImage);
+                c.width = fg.System.defaultSide * 10;
+                c.height = fg.System.defaultSide * 5;
+                this.marioSeed = new Image();
+                var mario = this;
+                this.marioSeed.onload = function (e) {
+                    //draw background image
+                    for (var i = 0, key; key = Object.keys(fg.Render.marioCache)[i]; i++) {
+                        mario.renderSubTile(ctx, key);
+                    }
+                };
+                this.marioSeed.src = this.imagePath;
+                fg.Game.spriteSheets.push(this.marioSeed);
                 return c;
             },
             update: function () {
@@ -676,21 +668,25 @@ fg.Mario = function (id, type, x, y, cx, cy, index) {
                 else
                     return "3" + index;
             },
-            setSubTiles: function (setCacheX) {
+            setSubTiles: function (setCacheXY) {
                 this.setEdges();
                 this.tileSet = "";
                 for (var i = 0; i <= 6; i += 2)
                     this.tileSet += this.getSubTiles(this.edges[i], this.edges[i + 1], (this.edges[i + 2] === undefined ? this.edges[0] : this.edges[i + 2]), i / 2);
-                if (setCacheX) this.cacheX = fg.Render.marioCache[this.tileSet];
+                if (setCacheXY) {
+                    this.cacheX = fg.Render.marioCache[this.tileSet] % (fg.System.defaultSide * 10);
+                    this.cacheY = Math.floor(fg.Render.marioCache[this.tileSet] / (fg.System.defaultSide * 10)) * fg.System.defaultSide;
+                }
             },
             renderSubTile: function (ctx, key) {
-                var posX = fg.Render.marioCache[key];
+                var posX = fg.Render.marioCache[key] % (fg.System.defaultSide * 10);
+                var posY = Math.floor(fg.Render.marioCache[key] / (fg.System.defaultSide * 10))*fg.System.defaultSide;
                 for (var i = 0; i <= 6; i += 2) {
                     var cacheX = (parseInt(key[i]) * fg.System.defaultSide) + parseInt(this.cachePosition[key[i + 1]].x);
                     var cacheY = parseInt(this.cachePosition[key[i + 1]].y);
                     var cacheWidth = fg.System.defaultSide / 2;
                     var cacheHeight = fg.System.defaultSide / 2;
-                    ctx.drawImage(ctx.canvas, cacheX, cacheY, cacheWidth, cacheHeight, posX + this.cachePosition[i / 2].x, this.cachePosition[i / 2].y, (fg.System.defaultSide / 2), (fg.System.defaultSide / 2));
+                    ctx.drawImage(this.marioSeed, cacheX, cacheY, cacheWidth, cacheHeight, posX + this.cachePosition[i / 2].x, posY + this.cachePosition[i / 2].y, (fg.System.defaultSide / 2), (fg.System.defaultSide / 2));
                 }
             }
         });
