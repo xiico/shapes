@@ -1,12 +1,12 @@
 var levelOne = {tiles:
-"M       \n"+
-"  MM    \n"+
-"  MM    \n"+
-"        \n"+
-"        \n"+
-"        \n"+
-"        \n"+
-"         ",
+"MMMMMMMM\n"+
+"MMWRWWMM\n"+
+"MMMMMMMM\n"+
+"MMMMMMMM\n"+
+"MMMMMMMM\n"+
+"MMMMMMMM\n"+
+"MMMMMMMM\n"+
+"MMMMMMMM",
     customProperties: []}
 /*
 MMMMMMMM
