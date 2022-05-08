@@ -1619,8 +1619,8 @@ fg.Input = {
         }
     },
     initTouch: function () {
-        fg.System.canvas.addEventListener("touchstart", this.handleStart, false);
-        fg.System.canvas.addEventListener("touchend", this.handleEnd, false);
+        fg.System.canvas.addEventListener("touchstart mousedown", this.handleStart, false);
+        fg.System.canvas.addEventListener("touchend mouseup", this.handleEnd, false);
         fg.System.canvas.addEventListener("touchcancel", this.handleCancel, false);
         fg.System.canvas.addEventListener("touchmove", this.handleMove, false);
         this.log("initialized.");
